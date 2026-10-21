@@ -1,0 +1,11 @@
+kurigram>=2.2,<3
+tgcrypto-pyrofork==1.2.8
+websockets>=13,<17
+requests>=2.32.5,<3
+pyfiglet>=1.0,<2
+aiohttp>=3.9,<4
+dnspython>=2.6,<3
+phonenumbers>=8.13,<10
+python-whois>=0.9,<1
+Pillow>=10,<13
+holehe>=1.61,<2
