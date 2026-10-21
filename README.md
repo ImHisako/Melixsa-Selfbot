@@ -1,5 +1,9 @@
 # Melixsa Selfbot
 
+<p align="center">
+<img src="https://i.pinimg.com/736x/e7/6e/60/e76e60183a1967e5f68133a35b010aef.jpg", width="500", height="500">
+</p>
+
 A modular Telegram client for personal account automation, group monitoring, public-source research, and local SoundCloud playback control. Melixsa runs on [Kurigram](https://github.com/kurigram-org/kurigram) and authenticates through your Telegram user account.
 
 Commands are available to the account owner and authorized users. Monitoring configuration, access permissions, and selected preferences persist across restarts. The current command menus and most runtime messages are in Italian; this README documents the application in English.
