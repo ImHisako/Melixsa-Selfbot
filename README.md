@@ -534,7 +534,7 @@ run.cmd
 | Project | Contribution |
 | --- | --- |
 | [Kurigram](https://github.com/kurigram-org/kurigram) | Telegram client library |
-| [Luna Selfbot by Nas](https://github.com/ImHisako/Luna-Selfbot-Source-Code-by-Nas) | Console styling, menus, and adapted commands |
+| [Luna Selfbot reversed by Nas](https://github.com/ImHisako/Luna-Selfbot-Source-Code-by-Nas) | Console styling, menus, and adapted commands |
 | [rehuux/selfbot](https://github.com/rehuux/selfbot) by **[Syed Rehan](https://rehuux.vercel.app)** | AFK behavior and public-source research references |
 | [AbelXeon/OSINT-BOT](https://github.com/AbelXeon/OSINT-BOT) | Adapted research backends |
 | [WhatsMyName by WebBreacher](https://github.com/WebBreacher/WhatsMyName) | Username-detection dataset |
