@@ -611,4 +611,4 @@ run.cmd
 | [LRCLIB](https://lrclib.net/docs) | Timestamped lyrics |
 | [nekos.best](https://docs.nekos.best/getting-started/api-endpoints.html) | GIF interactions |
 
-Attributions and included third-party license terms are preserved in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt). Retain those notices when redistributing the corresponding code. These notices describe third-party components and do not establish a single project-wide license for Melixsa.
+
