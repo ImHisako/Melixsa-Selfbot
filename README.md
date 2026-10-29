@@ -1,9 +1,5 @@
 # Melixsa Selfbot
 
-<p align="center">
-<img src="https://i.pinimg.com/736x/e7/6e/60/e76e60183a1967e5f68133a35b010aef.jpg", width="500", height="500">
-</p>
-
 A modular Telegram client for personal account automation, group monitoring, public-source research, and local SoundCloud playback control. Melixsa runs on [Kurigram](https://github.com/kurigram-org/kurigram) and authenticates through your Telegram user account.
 
 Commands are available to the account owner and authorized users. Monitoring configuration, access permissions, and selected preferences persist across restarts. The current command menus and most runtime messages are in Italian; this README documents the application in English.
@@ -30,14 +26,14 @@ Commands are available to the account owner and authorized users. Monitoring con
 
 ## Features
 
-- **Telegram command interface:** category menus, command help, configurable prefixes, and automatic response deletion.
+- **Telegram command interface:** category menus, command help, command search and paginated listings, configurable prefixes, and automatic response deletion.
 - **Access control:** authorize users and manage shared commands individually or by category.
 - **Monitoring:** record new group messages and edits, with separate group and user logs, rotation, and retention controls.
 - **Research:** public email, username, domain, IP, phone, Telegram profile, image metadata, and geolocation tools.
 - **Utilities:** notes, polls, text transformations, password generation, profile management, and group administration.
 - **Automation:** private-chat AFK replies, reactions to outgoing messages, and protection against new logins.
 - **SoundCloud:** control a local browser player through WebNowPlaying and deliver synchronized lyrics to a chat.
-- **Operations:** local diagnostics, atomic state updates, backup recovery, queued log writes, and cancellable research jobs.
+- **Operations:** local diagnostics, atomic state updates, preference and note snapshots, command history without arguments, backup recovery, queued log writes, and cancellable research jobs.
 
 ## Requirements
 
@@ -153,6 +149,20 @@ The default prefix is `/`, used throughout this README. Open `/help`, a category
 
 Aliases include `/h` and `/?` for help, `/profile` for Misc, and `/sc` for SoundCloud.
 
+Long command menus are split automatically into pages of up to 12 entries and 3,000 UTF-16 units of content. A short menu stays on one page. Multi-page menus show the current page and the exact commands for the previous and next pages, using your current prefix:
+
+```text
+/text
+/text 2
+/help text 2
+/osint 2
+/sc 2
+/allcmds 2
+/search text 2
+```
+
+`/osint 2` and `/sc 2` open menu pages; `/osint ip 1.1.1.1` and `/sc pause` still run their respective commands. Page counts are calculated after access filtering and respect `minimal-mode`. Selecting an unavailable help page displays the valid range and a command to return to the first page. `search` and `allcmds` use the same page limits and include navigation commands when multiple pages are available.
+
 ### Prefix and response deletion
 
 `/prefix !` changes the prefix globally: commands become `!help`, `!status`, and so on. The prefix accepts one printable symbol and persists across restarts. The owner can always use `/prefix /` to restore `/`.
@@ -212,11 +222,12 @@ Use built-in help for individual arguments and aliases.
 
 | Category | Commands |
 | --- | --- |
-| Fun | `hug`, `kiss`, `pat`, `slap`, `tickle`, `feed`, `bite`, `shoot`, `iq`, `gay`, `love`, `dick`, `boobs`, `8ball`, `slot`, `coinflip`, `dice`, `choose`, `joke`, `dadjoke` |
+| Fun | `hug`, `kiss`, `pat`, `slap`, `tickle`, `feed`, `bite`, `shoot`, `iq`, `gay`, `love`, `dick`, `boobs`, `8ball`, `slot`, `coinflip`, `dice`, `choose`, `joke`, `dadjoke`, `rps` |
 | Animated | `cathi`, `flop`, `poof`, `boom`, `tableflip`, `unflip`, `warning` |
-| Text | `ascii`, `reverse`, `vape`, `zalgo`, `bold`, `italic`, `spoiler`, `underline`, `strike`, `indent`, `indent_title`, `indent_footer`, `indent_all` |
-| Encoding and hashes | `encode_base64`, `decode_base64`, `encode_leet`, `decode_leet`, `encode_md5`, `encode_sha1`, `encode_sha224`, `encode_sha256`, `encode_sha384`, `encode_sha512` |
-| Tools | `calc`, `passgen`, `note`, `editnote`, `delnote`, `shownote`, `sendnote`, `notes`, `poll`, `cpoll` |
+| Text | `ascii`, `reverse`, `vape`, `zalgo`, `bold`, `italic`, `spoiler`, `underline`, `strike`, `indent`, `indent_title`, `indent_footer`, `indent_all`, `regional`, `randomcase`, `shrug`, `lmgtfy` |
+| Encoding and hashes | `encode_base64`, `decode_base64`, `encode_leet`, `decode_leet`, `encode_md5`, `encode_sha1`, `encode_sha224`, `encode_sha256`, `encode_sha384`, `encode_sha512`, `encodemorsecode`, `decodemorsecode` |
+| Code and JSON | `codeblock`, `json`, `python`, `js`, `html`, `css`, `java`, `c`, `cpp`, `php`, `lua` |
+| Tools | `calc`, `passgen`, `note`, `editnote`, `delnote`, `shownote`, `sendnote`, `notes`, `poll`, `cpoll`, `search`, `allcmds` |
 | Admin | `whois`, `chatinfo`, `kick`, `ban`, `unban`, `mute`, `unmute`, `slowmode`, `removeslowmode`, `guildname` |
 | Misc | `uptime`, `about`, `ping`, `name`, `bio`, `avatar`, `afk`, `back`, `afkstatus` |
 | Abuse | `spam`, `spamstop` |
@@ -240,6 +251,53 @@ Use built-in help for individual arguments and aliases.
 - **Latency:** `ping` measures MTProto round-trip time with a five-second timeout, excluding response delivery.
 - **Entertainment:** GIF interactions use nekos.best with a text fallback. Random scores and ASCII results are fictional. Animations update one message at two-second intervals, with one animation per chat.
 - **Repeated messages:** owner-only `spam` accepts text, a count of 1–100, and an interval of 0–3600 seconds. One sequence runs per chat; `spamstop` stops it. Rate limits or rejected sends stop delivery. Generated messages remain in the chat.
+
+### Utilities from the Ghost comparison
+
+The local `ghost-main/` source was reviewed for portable features. Melixsa adds 23 commands through a new Telegram implementation, integrated with its existing help, aliases, response timer, and access controls:
+
+| Ghost feature | Melixsa behavior |
+| --- | --- |
+| `search`, `allcmds` | Search command names, descriptions, categories, and aliases; browse alphabetical pages. Shared users see only their permitted commands. `minimal-mode` hides descriptions. |
+| `commandhistory` / `cmdhistory` | Owner-only history of the last 50 completed commands; defaults to 10 displayed. Includes name, local time, outcome, and duration. Arguments and chat identifiers are never stored. History remains in memory and resets on restart; `commandhistory clear` clears it. |
+| Account backups | Owner-only local snapshots of Melixsa preferences and notes, with validation and a safety snapshot before restoring a section. See below. |
+| Morse encoding and decoding | `encodemorsecode` / `morse` and `decodemorsecode` / `unmorse`; letters are separated by spaces and words by `/`. Unsupported input produces an error instead of silently losing characters. |
+| Code blocks | `codeblock <language> <code>` or reply with `codeblock python`; language shortcuts include `python`, `js`, `html`, `css`, `java`, `c`, `cpp`, `php`, and `lua`. Native Telegram entities preserve literal markup and emoji. Code is never executed. |
+| JSON formatting | `json` validates JSON and formats it with two-space indentation. `NaN` and `Infinity` are rejected. |
+| Text and entertainment | `regional`, `randomcase`, `shrug`, `lmgtfy`, and `rps sasso|carta|forbici`. `lmgtfy` creates a Google search link without making a web request. |
+
+Text and code commands accept arguments or replied-to text, with up to 1,500 input characters and 4,000 UTF-16 units in the result. Existing commands also gain familiar aliases such as `passwordgen`, `genpassword`, `aesthetic`, `latency`, `av`, `ui`, `serverinfo`, `clearconsole`, `cf`, and `roll`. Existing command meanings are retained, including console `clear` and console `timestamp`.
+
+```text
+/search morse
+/allcmds 2
+/morse SOS 123
+/json {"hello":"world","items":[1,2]}
+/codeblock python print("hello")
+/rps forbici
+/commandhistory 20
+```
+
+AFK, uptime, avatar lookup, password generation, notes, and basic moderation were already available. Discord-specific Nitro, rich presence, HypeSquad, themes, webhooks, and Discord GUI components are not Telegram features. Destructive mass actions and automatic link snipers were not added.
+
+### Local preference and note backups
+
+These owner-only commands are in `settings`:
+
+```text
+/backup create prima
+/backups
+/backup view prima
+/backup restore prima settings
+/backup restore prima notes
+/backup delete prima
+```
+
+`backup create [name]` stores a JSON snapshot under `data/backups/`; omitting the name generates one. Names allow 1–64 ASCII letters, digits, underscores, or hyphens, and cannot overwrite existing snapshots. `backup view` shows only a summary; backup files and note bodies are not uploaded to Telegram. Up to 30 snapshots are retained; `backup delete` explicitly removes the selected copy.
+
+Restore selects one section: `settings` restores the prefix, response timer, autoreaction options, minimal mode, console preferences, log limits, and error-notification setting; `notes` replaces the local note collection. Before either operation, a new snapshot preserves the current preferences and notes, and its name is returned. Restore stops if that safety snapshot cannot be written or the 30-copy limit has been reached. Invalid backup files are rejected before applying changes; writes are atomic, and failed preference saves roll back in-memory changes.
+
+Snapshots exclude `.env`, Telegram sessions, logs, caches, monitoring lists, authorized users, shared command grants, and anti-login state. Restoring preferences therefore preserves those current settings. Notes remain personal local data in the snapshot; the entire `data/` directory stays excluded from Git. Existing automatic `state.json.bak` recovery remains separate.
 
 ## Public-source research
 
@@ -469,25 +527,29 @@ Melixsa Selfbot/
 ├── selfbot.py                 # Entry point and environment fallback
 ├── run.cmd                    # Windows launcher
 ├── Cogs/
-│   ├── runtime.py             # Shared state and Telegram lifecycle
-│   ├── catalog.py             # Categories, syntax, help, and aliases
-│   ├── commands/              # Telegram command handlers
-│   ├── config_tools.py        # Configuration and credentials
-│   ├── persistence_tools.py   # Atomic writes and backups
-│   ├── log_tools.py           # Queued writes, rotation, and recovery
-│   ├── jobs_tools.py          # Research queue and cancellation
-│   ├── error_tools.py         # Optional error notifications
-│   ├── console_tools.py       # Banner and operational logging
-│   ├── luna_tools.py          # Utility, entertainment, and profile helpers
-│   ├── autoreact_tools.py     # Outgoing-message reactions
-│   ├── afk_tools.py           # Private-chat AFK replies
-│   ├── anti_login_tools.py    # Login-code and session controls
-│   ├── osint_tools.py         # Basic public-source lookups
-│   ├── osint_features.py      # Extended reports and media research
-│   ├── osint_extras/          # Adapted research backends
-│   ├── geosint_tools.py       # GeoSeeer client
-│   ├── soundcloud_tools.py    # WebNowPlaying adapter
-│   └── lyrics_tools.py        # LRCLIB integration
+│   ├── admin.py               # Group information and administration
+│   ├── abuse.py               # Repeated-message commands
+│   ├── animated.py            # Message animations
+│   ├── fun.py                 # Games, GIF interactions, and autoreactions
+│   ├── text.py                # Text, encodings, JSON, and code blocks
+│   ├── misc.py                # Profile, AFK, uptime, and ping
+│   ├── mass.py                # Group/user monitoring and monitor lists
+│   ├── tools.py               # Notes, polls, calculator, passwords, command search
+│   ├── osint.py               # Public-source research, media analysis, and jobs
+│   ├── soundcloud.py          # Playback control and synchronized lyrics
+│   ├── settings.py            # Help, access, preferences, diagnostics, and backups
+│   └── core/                  # Shared runtime and services
+│       ├── runtime.py         # Telegram lifecycle, state, and response helpers
+│       ├── router.py          # Dispatch by catalog category
+│       ├── pagination.py      # Menu pages and previous/next commands
+│       ├── catalog.py         # Categories, syntax, help, and aliases
+│       ├── config_tools.py    # Credentials and configuration
+│       ├── persistence_tools.py # Atomic state writes and recovery
+│       ├── backup_tools.py    # Preference and note snapshots
+│       ├── io_tools.py        # Cancellation-safe local operations
+│       ├── log_tools.py       # Log queues, rotation, and recovery
+│       ├── osint_extras/      # Adapted research backends
+│       └── ...                # Console, jobs, automation, research, and player services
 ├── tests/                     # Automated verification
 ├── data/                      # Local runtime data; excluded from Git
 ├── .env                       # Local credentials; excluded from Git
@@ -498,7 +560,9 @@ Melixsa Selfbot/
 └── THIRD_PARTY_NOTICES.txt
 ```
 
-Handlers use shared services from `Cogs`. Start through `run.cmd` or `selfbot.py`; individual modules are not entry points. Configuration and data paths are resolved relative to the project location.
+Each menu section has its command implementation in the matching `Cogs/<section>.py` file. The `mass surveillance` menu uses `mass.py`. `Cogs/__init__.py` registers the section modules, and `core/router.py` selects a section from `core/catalog.py`; aliases and category wrappers use the same dispatch. Add command handlers to the relevant section and help entries to the catalog.
+
+Shared services live in `Cogs/core/`. Imports of internal helpers now use `Cogs.core`, and command imports use their section, for example `Cogs.settings` or `Cogs.osint`. The former `Cogs/commands/` package and combined Luna/Ghost handlers have been removed. Start through `run.cmd` or `selfbot.py`; individual modules are not entry points. Configuration and data paths remain relative to the project location, under the existing `.env` and `data/` paths.
 
 ## Development
 
@@ -538,7 +602,8 @@ run.cmd
 | Project | Contribution |
 | --- | --- |
 | [Kurigram](https://github.com/kurigram-org/kurigram) | Telegram client library |
-| [Luna Selfbot reversed by Nas](https://github.com/ImHisako/Luna-Selfbot-Source-Code-by-Nas) | Console styling, menus, and adapted commands |
+| [Luna Selfbot by Nas](https://github.com/ImHisako/Luna-Selfbot-Source-Code-by-Nas) | Console styling, menus, and adapted commands |
+| [Ghost](https://github.com/ghostselfbot/ghost) | Functional reference for command search, local backups, history, and additional text utilities; implemented for Telegram |
 | [rehuux/selfbot](https://github.com/rehuux/selfbot) by **[Syed Rehan](https://rehuux.vercel.app)** | AFK behavior and public-source research references |
 | [AbelXeon/OSINT-BOT](https://github.com/AbelXeon/OSINT-BOT) | Adapted research backends |
 | [WhatsMyName by WebBreacher](https://github.com/WebBreacher/WhatsMyName) | Username-detection dataset |

@@ -16,7 +16,7 @@ def run() -> None:
     elif sys.stdout.isatty():
         print("\033[2J\033[H", end="", flush=True)
     try:
-        from Cogs.runtime import main
+        from Cogs.core.runtime import main
     except ModuleNotFoundError as exc:
         if exc.name not in {"pyrogram", "requests", "websockets", "pyfiglet"}:
             raise
@@ -26,7 +26,7 @@ def run() -> None:
         raise SystemExit("Dipendenze mancanti. Esegui: .venv\\Scripts\\python.exe -m pip install -r requirements.txt") from exc
     # Pyrogram può stampare l'avviso TgCrypto durante l'import:
     # pulisci di nuovo prima dell'avvio e del banner di Melixsa.
-    from Cogs.console_tools import clear
+    from Cogs.core.console_tools import clear
     clear()
     try:
         asyncio.run(main())
