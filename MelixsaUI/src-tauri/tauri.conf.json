@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Melixsa",
+  "version": "0.1.0",
+  "identifier": "dev.melixsa.desktop",
+  "build": {
+    "beforeDevCommand": "node scripts/run.mjs dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "node scripts/run.mjs build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{
+      "label": "main",
+      "title": "Melixsa",
+      "width": 1380,
+      "height": 900,
+      "minWidth": 840,
+      "minHeight": 650,
+      "center": true,
+      "backgroundColor": "#101014"
+    }],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": false,
+    "icon": ["icons/icon.ico"]
+  }
+}

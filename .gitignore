@@ -1,0 +1,53 @@
+# Credenziali e configurazioni locali (il modello resta condivisibile)
+.env
+.env.*
+!.env.example
+
+# Dati personali, stato, cache e sessioni Telegram
+data/
+*.session
+*.session-*
+*.session.*
+
+# Ambienti virtuali Python
+.venv/
+venv/
+env/
+ENV/
+
+# Bytecode e cache degli strumenti Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Pacchetti generati
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Log e file temporanei
+logs/
+*.log
+*.log.*
+*.tmp
+*.temp
+*~
+
+# Impostazioni locali degli editor e file del sistema operativo
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
