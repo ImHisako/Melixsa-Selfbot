@@ -41,7 +41,7 @@ export function useMelixsa() {
           const next = await request('snapshot');
           if (!stopped) setData(next);
         } catch (error) {
-          if (!stopped) setNotice({ text: String(error), error: true });
+          if (!stopped) setNotice({ text: String(error instanceof Error ? error.message : error), error: true });
         } finally {
           if (!stopped) setLoading(false);
         }

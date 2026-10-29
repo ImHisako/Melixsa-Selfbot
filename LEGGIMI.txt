@@ -1,0 +1,19 @@
+MELIXSA UI - WINDOWS X64
+
+Questa build e' stata compilata da GitHub Actions.
+Per eseguirla non servono Rust, Node.js o i Microsoft C++ Build Tools.
+
+1. Scarica e aggiorna il progetto Melixsa, inclusa la cartella MelixsaUI.
+2. Prepara il backend Python del progetto: ambiente .venv, dipendenze da
+   requirements.txt e credenziali Telegram nel .env, come da README.
+3. Estrai TUTTI i file di questo ZIP nella cartella principale di Melixsa,
+   accanto a Cogs, MelixsaUI, .venv e selfbot.py.
+4. Chiudi un eventuale Melixsa gia' avviato dal terminale.
+5. Apri "Apri MelixsaUI.cmd", poi premi "Collega Telegram" nella Home.
+
+La UI usa il backend Python e la sessione Telegram presenti sul tuo PC.
+Lo ZIP non incorpora un ambiente Python o le tue credenziali.
+Serve Microsoft Edge WebView2 Runtime, normalmente presente su Windows 11.
+
+SHA256SUMS.txt contiene l'hash SHA-256 dell'eseguibile scaricato.
+Per ulteriori dettagli leggi MelixsaUI/README.md nel progetto.

@@ -24,6 +24,8 @@ if str(ROOT) not in sys.path:
 from Cogs.core import autoreact_tools, config_tools, console_tools, persistence_tools, runtime
 from Cogs.core.instance_tools import InstanceLock
 from MelixsaUI.backend.surveillance import SurveillanceService
+from MelixsaUI.backend.stalk import StalkService
+from MelixsaUI.backend.commands import command_catalog
 
 
 class ActivityHandler(logging.Handler):
@@ -57,6 +59,7 @@ class DesktopBridge:
         self.profile_path = runtime.DATA_DIR / "desktop-profile.json"
         self.profile = None
         self.surveillance = SurveillanceService(self)
+        self.stalk = StalkService(self)
         self.handler = ActivityHandler(self)
         console_tools.logger.addHandler(self.handler)
         try:
@@ -324,6 +327,14 @@ class DesktopBridge:
     async def dispatch(self, method, params):
         if not isinstance(params, dict):
             raise ValueError("Parametri non validi.")
+        if method == "command_catalog":
+            return command_catalog()
+        if method == "stalk_overview":
+            return await self.stalk.overview()
+        if method == "stalk_set":
+            return await self.stalk.set_enabled(params)
+        if method == "stalk_logs":
+            return await self.stalk.logs(params)
         if method == "surveillance_overview":
             return await self.surveillance.overview()
         if method == "surveillance_chats":

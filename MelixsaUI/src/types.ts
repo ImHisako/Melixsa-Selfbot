@@ -1,5 +1,5 @@
 export type Connection = 'offline' | 'connecting' | 'connected' | 'error' | 'login_phone' | 'login_code' | 'login_password';
-export type Page = 'home' | 'modules' | 'surveillance' | 'settings' | 'activity';
+export type Page = 'home' | 'commands' | 'modules' | 'surveillance' | 'stalk' | 'settings' | 'activity';
 export interface Settings {
   prefix: string;
   delete_after: number;
@@ -74,3 +74,25 @@ export interface SurveillanceLogs {
   skipped: number;
 }
 export interface SurveillanceChat { id: string; title: string; username: string }
+
+export interface SelfbotCommand { name: string; usage: string; description: string; details: string; aliases: string[] }
+export interface CommandCategory { id: string; title: string; aliases: string[]; shortcut: string; commands: SelfbotCommand[] }
+export interface CommandCatalog { categories: CommandCategory[] }
+
+export interface StalkUser {
+  id: string;
+  name: string;
+  username: string;
+  enabled: boolean;
+  log_bytes: number;
+  log_files: number;
+  last_update: string | null;
+}
+export interface StalkOverview { users: StalkUser[]; active_count: number; log_bytes: number }
+export interface StalkLogs {
+  user_id: string;
+  limit: number;
+  records: (SurveillanceRecord & { chat_id: string })[];
+  limited: boolean;
+  skipped: number;
+}

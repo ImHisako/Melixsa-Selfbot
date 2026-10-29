@@ -3,6 +3,14 @@
 Interfaccia desktop Tauri 2 + React + TypeScript per il motore Python di Melixsa.
 Tema grafite e lilla, font locali, pagine modulari e impostazioni condivise con i comandi Telegram.
 
+La UI è disponibile in **italiano e inglese**. Il selettore nella barra superiore o in
+**Impostazioni > Generali > Lingua** cambia subito testi, guida, login, notifiche e
+formati di date e numeri. La scelta è salvata sul dispositivo e funziona anche
+nell’anteprima browser; al primo avvio si usa l’inglese per un browser in inglese,
+altrimenti l’italiano. Se l’archiviazione locale non è disponibile, la scelta vale
+per la sessione corrente. I messaggi AFK, i nomi e i contenuti Telegram mantengono
+il testo originale, così come le esportazioni JSON e i dettagli tecnici non riconosciuti.
+
 ## Aprire subito l'anteprima
 
 Esegui **Anteprima UI.cmd**. Serve Node.js; non serve un compilatore C++.
@@ -54,9 +62,15 @@ registrazione di un nuovo account Telegram.
   in `data/desktop-profile.json` per le aperture successive.
 - **Automazioni:** autoreact con selezione di 1–3 emoji e numero di reazioni;
   AFK e messaggio personalizzato; protezione dei nuovi accessi; notifiche degli errori.
+- **Comandi:** catalogo completo diviso nelle categorie del selfbot, con ricerca per
+  nome, alias, descrizione e sintassi, dettagli d’uso e copia del comando o del menu
+  di categoria con il prefisso corrente. Stelle e filtro Preferiti salvano scorciatoie locali.
 - **Surveillance:** attivazione e arresto del monitoraggio dei gruppi; scelta dalle
   ultime 200 chat Telegram oppure tramite username/ID; elenco ricercabile e lettore
   dei registri con filtro per modifiche, ricerca testuale ed esportazione della vista.
+- **Stalk:** attivazione e arresto per username o ID utente, elenco ricercabile delle
+  persone seguite e consultazione dei registri locali con gruppo di provenienza,
+  filtro modifiche, ricerca ed esportazione della vista in JSON.
 - **Impostazioni:** prefisso, eliminazione risposte, modalità minimale, preferenze console,
   dimensione dei log, copie di backup e conservazione.
 - **Attività:** ultimi 80 eventi della sessione desktop, ricerca, filtro errori ed esportazione JSON.
@@ -84,6 +98,50 @@ Disattivare un gruppo conserva i registri. I gruppi attivati vengono monitorati 
 mentre Telegram è connesso; i registri già presenti sono consultabili anche offline.
 Durante la sessione desktop restano visibili anche i gruppi caricati o appena fermati.
 
+### Cercare i comandi e salvare scorciatoie
+
+Apri **Comandi** dalla sidebar o dal pulsante di ricerca nella barra superiore.
+**Ctrl+K** (anche **Cmd+K** su Mac) apre la pagina e porta il cursore sulla ricerca.
+Puoi cercare nomi, alias, categorie, descrizioni e argomenti in italiano o inglese,
+anche includendo il prefisso attuale. I filtri di categoria e Preferiti si combinano
+con la ricerca; Escape nel campo cancella il testo cercato.
+
+La stella salva un comando nei Preferiti del dispositivo. Il pulsante copia usa il
+prefisso corrente delle impostazioni; anche gli alias e i menu delle categorie sono
+copiabili. Gli argomenti tra `<...>` e `[...]` sono segnaposto da compilare quando
+incolli il comando in Telegram. Se gli appunti non sono disponibili, seleziona la
+sintassi e usa Ctrl+C. I nomi dei comandi e le opzioni letterali rimangono invariati.
+
+L’app desktop legge il catalogo centrale dell’help senza collegare Telegram o
+eseguire comandi. L’anteprima usa una copia inclusa, disponibile anche se il motore
+non risponde. Dopo aver modificato il catalogo Python, rigenera questa copia dalla
+cartella principale del progetto:
+
+```powershell
+.\.venv\Scripts\python.exe MelixsaUI/scripts/export-command-catalog.py
+```
+
+I test verificano che la copia sia aggiornata e che tutte le categorie, descrizioni,
+sintassi e istruzioni abbiano una traduzione inglese.
+
+### Usare Stalk
+
+Apri **Stalk** nella sidebar, inserisci `@username` oppure un ID utente positivo e
+premi **Attiva Stalk** mentre Telegram è connesso. Il pannello usa lo stesso elenco
+persistente dei comandi `stalk`, `unstalk` e `stalklist`; le modifiche ai comandi
+appaiono automaticamente nella UI. I nomi vengono letti quando attivi un utente
+dall’app oppure dai registri esistenti; senza queste informazioni viene mostrato l’ID.
+
+Seleziona un utente per leggere i nuovi messaggi e le modifiche già registrati nei
+gruppi visibili al tuo account. Ogni evento indica il gruppo di provenienza. Puoi
+cercare nei testi e nei gruppi, filtrare le modifiche ed esportare gli eventi visibili.
+La lettura include gli archivi ruotati ed è limitata a 100 eventi e 2 MB, con
+aggiornamento ogni 5 secondi. Non viene scaricato lo storico precedente.
+
+Puoi fermare un utente e leggere i registri anche offline. Fermarlo conserva i file;
+durante la sessione desktop resta nell’elenco anche senza registri. Attivarlo richiede
+Telegram connesso. Stalk e Surveillance restano indipendenti.
+
 ## Comandi di sviluppo
 
 Da questa cartella:
@@ -92,6 +150,7 @@ Da questa cartella:
 node scripts/run.mjs install
 node scripts/run.mjs dev
 node scripts/run.mjs build
+node scripts/run.mjs test
 node scripts/run.mjs desktop
 node scripts/run.mjs desktop:build
 ```
@@ -109,9 +168,11 @@ Python incorporato. Le dipendenze JavaScript e Rust sono bloccate nei rispettivi
 ```text
 src/
   components/       Componenti condivisi, navigazione e login
+  catalog/          Catalogo generato dei comandi per l’anteprima
   hooks/            Stato, sincronizzazione e operazioni
+  i18n/             Catalogo italiano/inglese, preferenza locale e formati
   lib/              Contratto con il bridge Tauri
-  pages/            Home, Automazioni, Impostazioni, Attività
+  pages/            Home, Comandi, Automazioni, Surveillance, Stalk, Impostazioni, Attività
   tokens.css        Colori, font e variabili del tema
   styles.css        Layout responsive, componenti e animazioni
   types.ts          Modelli TypeScript
@@ -135,7 +196,7 @@ Dalla cartella principale di Melixsa:
 ```
 
 I test del bridge coprono validazione, salvataggio, rollback, preservazione degli accessi,
-concorrenza fra processi, AFK, profilo Telegram e isolamento del protocollo. Usano directory
+concorrenza fra processi, AFK, profilo Telegram, Surveillance, Stalk e isolamento del protocollo. Usano directory
 temporanee e client simulati; non collegano l'account reale.
 
 La build del frontend e il collaudo visivo sono stati eseguiti. La compilazione nativa

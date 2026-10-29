@@ -123,6 +123,7 @@ async fn bridge_request(
 ) -> Result<Value, String> {
     if ![
         "snapshot",
+        "command_catalog",
         "update_settings",
         "connect",
         "disconnect",
@@ -134,6 +135,9 @@ async fn bridge_request(
         "surveillance_chats",
         "surveillance_set",
         "surveillance_logs",
+        "stalk_overview",
+        "stalk_set",
+        "stalk_logs",
     ]
     .contains(&method.as_str())
     {

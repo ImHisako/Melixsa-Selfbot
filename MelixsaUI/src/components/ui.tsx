@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { ArrowUpRight, Check, LoaderCircle, Moon, Sparkles } from 'lucide-react';
 import type { Profile } from '../types';
@@ -7,8 +8,9 @@ export function Brand({ compact = false }: { compact?: boolean }) {
 }
 
 export function Avatar({ profile, size = 'normal' }: { profile: Profile | null; size?: 'small' | 'normal' | 'large' }) {
+  const { t } = useI18n();
   const initials = profile?.name.split(' ').filter(Boolean).slice(0, 2).map(part => part[0]).join('') || 'M';
-  return <div className={`avatar avatar-${size}`}>{profile?.photo ? <img src={profile.photo} alt={`Foto profilo di ${profile.name}`} /> : <span>{initials}</span>}</div>;
+  return <div className={`avatar avatar-${size}`}>{profile?.photo ? <img src={profile.photo} alt={t("Foto profilo di {name}", { name: profile.name })} /> : <span>{initials}</span>}</div>;
 }
 
 export function Toggle({ checked, onChange, label, disabled = false }: { checked: boolean; onChange: (value: boolean) => void; label: string; disabled?: boolean }) {

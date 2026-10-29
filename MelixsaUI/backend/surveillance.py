@@ -32,19 +32,19 @@ def text(value, limit=256):
     return value[:limit] if isinstance(value, str) else ""
 
 
-def log_files(directory: Path):
-    """Only regular group log files inside the configured log directory."""
+def log_files(directory: Path, *, pattern=LOG_NAME, parse_id=group_id):
+    """Only recognised regular log files inside the configured log directory."""
     result = {}
     if not directory.exists():
         return result
     root = directory.resolve()
     for path in directory.iterdir():
-        match = LOG_NAME.fullmatch(path.name)
+        match = pattern.fullmatch(path.name)
         if not match or path.is_symlink() or path.resolve().parent != root or not path.is_file():
             continue
         try:
             stat = path.stat()
-            chat_id = group_id(match[1])
+            chat_id = parse_id(match[1])
         except (OSError, ValueError):
             continue
         # Current log first, then closed archives in descending rotation order.
@@ -55,7 +55,7 @@ def log_files(directory: Path):
     return result
 
 
-def read_records(files, chat_id, *, limit=MAX_RECORDS, budget=MAX_READ_BYTES):
+def read_records(files, target_id, *, identity_field="chat_id", limit=MAX_RECORDS, budget=MAX_READ_BYTES):
     """Read newest records first, including rotations, without loading entire files."""
     records = []
     skipped = 0
@@ -79,8 +79,9 @@ def read_records(files, chat_id, *, limit=MAX_RECORDS, budget=MAX_READ_BYTES):
                             continue
                         try:
                             raw = json.loads(line)
-                            if not isinstance(raw, dict) or raw.get("chat_id") != chat_id:
-                                raise ValueError("Invalid group record")
+                            if (not isinstance(raw, dict) or type(raw.get(identity_field)) is not int
+                                    or raw[identity_field] != target_id):
+                                raise ValueError("Invalid monitoring record")
                         except (ValueError, UnicodeError):
                             skipped += 1
                             continue
@@ -93,6 +94,7 @@ def read_records(files, chat_id, *, limit=MAX_RECORDS, budget=MAX_READ_BYTES):
                             "text": text(raw.get("text"), 8000),
                             "media": text(raw.get("media"), 64),
                             "chat_title": text(raw.get("chat_name") or raw.get("chat_title")),
+                            "chat_id": str(raw["chat_id"]) if type(raw.get("chat_id")) is int else "",
                         })
                         if len(records) == limit:
                             limited = position > 0 or len(lines) > 1 or file_index < len(files) - 1

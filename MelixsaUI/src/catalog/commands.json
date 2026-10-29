@@ -1,0 +1,1351 @@
+{
+  "categories": [
+    {
+      "id": "admin",
+      "title": "Amministrazione",
+      "aliases": [],
+      "shortcut": "admin",
+      "commands": [
+        {
+          "name": "chatinfo",
+          "usage": "",
+          "description": "Info gruppo",
+          "details": "Solo gruppi; mostra ID, username e membri.",
+          "aliases": [
+            "guildinfo",
+            "serverinfo",
+            "si"
+          ]
+        },
+        {
+          "name": "whois",
+          "usage": "[utente]",
+          "description": "Info utente",
+          "details": "@username, ID o risposta; mostra dati pubblici.",
+          "aliases": [
+            "ui",
+            "userinfo"
+          ]
+        },
+        {
+          "name": "kick",
+          "usage": "[utente o risposta]",
+          "description": "Espelli dal gruppo",
+          "details": "Espelli dal gruppo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "ban",
+          "usage": "[utente o risposta]",
+          "description": "Banna dal gruppo",
+          "details": "Banna dal gruppo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "unban",
+          "usage": "<utente>",
+          "description": "Rimuovi ban",
+          "details": "Rimuovi ban. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "mute",
+          "usage": "[utente o risposta]",
+          "description": "Silenzia nel gruppo",
+          "details": "Silenzia nel gruppo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "unmute",
+          "usage": "[utente o risposta]",
+          "description": "Ripristina permessi della chat",
+          "details": "Ripristina permessi della chat. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "slowmode",
+          "usage": "<secondi>",
+          "description": "Imposta modalità lenta",
+          "details": "Imposta modalità lenta. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "removeslowmode",
+          "usage": "",
+          "description": "Disattiva modalità lenta",
+          "details": "Disattiva modalità lenta. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "guildname",
+          "usage": "<titolo>",
+          "description": "Rinomina gruppo Telegram",
+          "details": "Rinomina gruppo Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "abuse",
+      "title": "Invii e arresto",
+      "aliases": [],
+      "shortcut": "abuse",
+      "commands": [
+        {
+          "name": "spam",
+          "usage": "<testo> <numero> <secondi>",
+          "description": "Invia messaggi con suffisso casuale",
+          "details": "Testo con spazi; gli ultimi due valori sono numero (1-100) e intervallo (0-3600 secondi, anche decimali). Esempio: >spam ciao a tutti 5 0. Ogni messaggio termina con | e 5 caratteri casuali. Una sequenza per chat, nello stesso topic; messaggi conservati. Si ferma se Telegram richiede una pausa o rifiuta un invio.",
+          "aliases": []
+        },
+        {
+          "name": "spamstop",
+          "usage": "",
+          "description": "Ferma gli invii nella chat corrente",
+          "details": "Ferma la sequenza nella chat corrente. Gli invii non ripartono al riavvio.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "animated",
+      "title": "Animazioni",
+      "aliases": [],
+      "shortcut": "animated",
+      "commands": [
+        {
+          "name": "cathi",
+          "usage": "[testo]",
+          "description": "Gattino nel pacco",
+          "details": "Gattino nel pacco. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "flop",
+          "usage": "",
+          "description": "Capriola",
+          "details": "Capriola. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "poof",
+          "usage": "",
+          "description": "Scomparsa",
+          "details": "Scomparsa. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "boom",
+          "usage": "",
+          "description": "Esplosione cartoon",
+          "details": "Esplosione cartoon. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "tableflip",
+          "usage": "",
+          "description": "Rovescia il tavolo",
+          "details": "Rovescia il tavolo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "unflip",
+          "usage": "",
+          "description": "Rimetti il tavolo",
+          "details": "Rimetti il tavolo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "warning",
+          "usage": "",
+          "description": "Allarme simulato",
+          "details": "Allarme simulato. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "fun",
+      "title": "Divertimento",
+      "aliases": [],
+      "shortcut": "fun",
+      "commands": [
+        {
+          "name": "autoreact",
+          "usage": "[on|off|emoji|count]",
+          "description": "Configura reazioni automatiche",
+          "details": "on/off attiva o ferma. sceglie fino a 3 emoji separate da spazi; count 1|2|3 usa le prime N della lista.",
+          "aliases": []
+        },
+        {
+          "name": "hug",
+          "usage": "[utente o risposta]",
+          "description": "Abbraccia",
+          "details": "Abbraccia. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "kiss",
+          "usage": "[utente o risposta]",
+          "description": "Bacia",
+          "details": "Bacia. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "pat",
+          "usage": "[utente o risposta]",
+          "description": "Accarezza",
+          "details": "Accarezza. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "slap",
+          "usage": "[utente o risposta]",
+          "description": "Schiaffo scherzoso",
+          "details": "Schiaffo scherzoso. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "tickle",
+          "usage": "[utente o risposta]",
+          "description": "Solletico",
+          "details": "Solletico. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "feed",
+          "usage": "[utente o risposta]",
+          "description": "Offri del cibo",
+          "details": "Offri del cibo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "bite",
+          "usage": "[utente o risposta]",
+          "description": "Morso scherzoso",
+          "details": "Morso scherzoso. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "shoot",
+          "usage": "[utente o risposta]",
+          "description": "Scena cartoon",
+          "details": "Scena cartoon. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "iq",
+          "usage": "[utente o risposta]",
+          "description": "IQ casuale per gioco",
+          "details": "IQ casuale per gioco. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "gay",
+          "usage": "[utente o risposta]",
+          "description": "Percentuale casuale per gioco",
+          "details": "Percentuale casuale per gioco. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "love",
+          "usage": "[utente o risposta]",
+          "description": "Affinità casuale per gioco",
+          "details": "Affinità casuale per gioco. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "dick",
+          "usage": "[utente o risposta]",
+          "description": "Dimensione ASCII",
+          "details": "Rispondi a un messaggio oppure indica @username o ID. Mostra un disegno 8=D, con da 1 a 13 simboli =.",
+          "aliases": []
+        },
+        {
+          "name": "boobs",
+          "usage": "[utente o risposta]",
+          "description": "Dimensione ASCII",
+          "details": "Rispondi a un messaggio oppure indica @username o ID. Mostra due disegni (.) (.), con da 0 a 13 spazi su ciascun lato del punto. Gli spazi vengono conservati.",
+          "aliases": []
+        },
+        {
+          "name": "8ball",
+          "usage": "<domanda>",
+          "description": "Risposta della sfera magica",
+          "details": "Risposta della sfera magica. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "8b"
+          ]
+        },
+        {
+          "name": "slot",
+          "usage": "",
+          "description": "Slot machine",
+          "details": "Slot machine. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "slots"
+          ]
+        },
+        {
+          "name": "coinflip",
+          "usage": "",
+          "description": "Testa o croce",
+          "details": "Testa o croce. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "cf",
+            "flip"
+          ]
+        },
+        {
+          "name": "dice",
+          "usage": "[facce]",
+          "description": "Lancia un dado",
+          "details": "Lancia un dado. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "roll"
+          ]
+        },
+        {
+          "name": "choose",
+          "usage": "<a | b | ...>",
+          "description": "Scegli un'opzione",
+          "details": "Scegli un'opzione. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "joke",
+          "usage": "",
+          "description": "Battuta casuale",
+          "details": "Battuta casuale. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "dadjoke",
+          "usage": "",
+          "description": "Freddura casuale",
+          "details": "Freddura casuale. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "rps",
+          "usage": "<sasso|carta|forbici>",
+          "description": "Gioca a sasso, carta, forbici",
+          "details": "Scegli sasso, carta o forbici; Melixsa estrae la propria mossa e mostra l'esito. Accetta anche rock, paper e scissors.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "text",
+      "title": "Testo",
+      "aliases": [],
+      "shortcut": "text",
+      "commands": [
+        {
+          "name": "reverse",
+          "usage": "<testo o risposta>",
+          "description": "Inverti testo",
+          "details": "Inverti testo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "vape",
+          "usage": "<testo o risposta>",
+          "description": "Testo fullwidth",
+          "details": "Testo fullwidth. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "aesthetic"
+          ]
+        },
+        {
+          "name": "zalgo",
+          "usage": "<testo o risposta>",
+          "description": "Testo glitch",
+          "details": "Testo glitch. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "ascii",
+          "usage": "<testo o risposta>",
+          "description": "Banner ASCII",
+          "details": "Banner ASCII. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "bold",
+          "usage": "<testo o risposta>",
+          "description": "Grassetto Telegram",
+          "details": "Grassetto Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "spoiler",
+          "usage": "<testo o risposta>",
+          "description": "Spoiler Telegram",
+          "details": "Spoiler Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "underline",
+          "usage": "<testo o risposta>",
+          "description": "Sottolineato Telegram",
+          "details": "Sottolineato Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "strike",
+          "usage": "<testo o risposta>",
+          "description": "Barrato Telegram",
+          "details": "Barrato Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "italic",
+          "usage": "<testo o risposta>",
+          "description": "Corsivo Telegram",
+          "details": "Corsivo Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "indent",
+          "usage": "<testo o risposta>",
+          "description": "Rientra il testo",
+          "details": "Rientra il testo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "indent_title",
+          "usage": "<testo o risposta>",
+          "description": "Rientra la prima riga",
+          "details": "Rientra la prima riga. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "indent_footer",
+          "usage": "<testo o risposta>",
+          "description": "Rientra l'ultima riga",
+          "details": "Rientra l'ultima riga. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "indent_all",
+          "usage": "<testo o risposta>",
+          "description": "Rientra tutte le righe",
+          "details": "Rientra tutte le righe. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_base64",
+          "usage": "<testo o risposta>",
+          "description": "Codifica Base64",
+          "details": "Codifica Base64. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "base64",
+            "encode"
+          ]
+        },
+        {
+          "name": "decode_base64",
+          "usage": "<testo o risposta>",
+          "description": "Decodifica Base64",
+          "details": "Decodifica Base64. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "decode"
+          ]
+        },
+        {
+          "name": "encode_leet",
+          "usage": "<testo o risposta>",
+          "description": "Testo leet",
+          "details": "Testo leet. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "leet"
+          ]
+        },
+        {
+          "name": "decode_leet",
+          "usage": "<testo o risposta>",
+          "description": "Decodifica leet",
+          "details": "Decodifica leet. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_md5",
+          "usage": "<testo o risposta>",
+          "description": "Digest MD5",
+          "details": "Digest MD5. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_sha1",
+          "usage": "<testo o risposta>",
+          "description": "Digest SHA1",
+          "details": "Digest SHA1. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_sha224",
+          "usage": "<testo o risposta>",
+          "description": "Digest SHA224",
+          "details": "Digest SHA224. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_sha256",
+          "usage": "<testo o risposta>",
+          "description": "Digest SHA256",
+          "details": "Digest SHA256. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_sha384",
+          "usage": "<testo o risposta>",
+          "description": "Digest SHA384",
+          "details": "Digest SHA384. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encode_sha512",
+          "usage": "<testo o risposta>",
+          "description": "Digest SHA512",
+          "details": "Digest SHA512. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "encodemorsecode",
+          "usage": "<testo o risposta>",
+          "description": "Codifica in Morse",
+          "details": "Lettere A-Z, cifre e punteggiatura standard. Lettere separate da spazi, parole da /. Accetta testo o risposta. Accenti ed emoji non vengono scartati: restituiscono un errore.",
+          "aliases": [
+            "morse",
+            "morsecode"
+          ]
+        },
+        {
+          "name": "decodemorsecode",
+          "usage": "<Morse o risposta>",
+          "description": "Decodifica Morse",
+          "details": "Punti e trattini; separa le lettere con spazi e le parole con /. Restituisce testo in maiuscolo. Accetta argomento o risposta.",
+          "aliases": [
+            "morsecodedecode",
+            "unmorse"
+          ]
+        },
+        {
+          "name": "regional",
+          "usage": "<testo o risposta>",
+          "description": "Lettere in emoji regionali",
+          "details": "Lettere in emoji regionali. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": []
+        },
+        {
+          "name": "randomcase",
+          "usage": "<testo o risposta>",
+          "description": "Maiuscole e minuscole casuali",
+          "details": "Maiuscole e minuscole casuali. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": []
+        },
+        {
+          "name": "shrug",
+          "usage": "",
+          "description": "Invia una scrollata di spalle",
+          "details": "Invia ¯\\_(ツ)_/¯. Nessun argomento.",
+          "aliases": []
+        },
+        {
+          "name": "lmgtfy",
+          "usage": "<ricerca o risposta>",
+          "description": "Crea un link di ricerca",
+          "details": "Crea un link Google con il testo correttamente codificato. Non esegue richieste web. Accetta argomento o risposta.",
+          "aliases": [
+            "letmegooglethatforyou"
+          ]
+        },
+        {
+          "name": "codeblock",
+          "usage": "<linguaggio> [testo o risposta]",
+          "description": "Blocco di codice Telegram",
+          "details": "Indica il linguaggio seguito dal codice, oppure rispondi al codice con codeblock python. Usa entità PRE Telegram, conservando markup e simboli letterali. Il codice non viene eseguito.",
+          "aliases": [
+            "block"
+          ]
+        },
+        {
+          "name": "json",
+          "usage": "<JSON o risposta>",
+          "description": "Valida e formatta JSON",
+          "details": "Valida JSON e lo formatta con rientro di due spazi in un blocco Telegram. Accetta argomento o risposta; massimo 1500 caratteri in ingresso e 4000 unità UTF-16 in uscita.",
+          "aliases": [
+            "jblock"
+          ]
+        },
+        {
+          "name": "python",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice python",
+          "details": "Blocco di codice python. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "pyblock",
+            "pythonblock"
+          ]
+        },
+        {
+          "name": "js",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice javascript",
+          "details": "Blocco di codice javascript. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "javascript",
+            "jsblock"
+          ]
+        },
+        {
+          "name": "html",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice html",
+          "details": "Blocco di codice html. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "htmlblock"
+          ]
+        },
+        {
+          "name": "css",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice css",
+          "details": "Blocco di codice css. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "cssblock"
+          ]
+        },
+        {
+          "name": "java",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice java",
+          "details": "Blocco di codice java. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "javablock"
+          ]
+        },
+        {
+          "name": "c",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice c",
+          "details": "Blocco di codice c. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "cblock"
+          ]
+        },
+        {
+          "name": "cpp",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice cpp",
+          "details": "Blocco di codice cpp. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "cppblock"
+          ]
+        },
+        {
+          "name": "php",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice php",
+          "details": "Blocco di codice php. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "phpblock"
+          ]
+        },
+        {
+          "name": "lua",
+          "usage": "<codice o risposta>",
+          "description": "Blocco di codice lua",
+          "details": "Blocco di codice lua. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri.",
+          "aliases": [
+            "luablock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "misc",
+      "title": "Profilo e utilità",
+      "aliases": [
+        "profile"
+      ],
+      "shortcut": "misc",
+      "commands": [
+        {
+          "name": "uptime",
+          "usage": "",
+          "description": "Tempo di attività",
+          "details": "Tempo di attività. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "about",
+          "usage": "",
+          "description": "Info Melixsa",
+          "details": "Info Melixsa. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "ping",
+          "usage": "",
+          "description": "Latenza API Telegram",
+          "details": "Latenza API Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "latency"
+          ]
+        },
+        {
+          "name": "name",
+          "usage": "<nome> [| cognome]",
+          "description": "Cambia nome Telegram",
+          "details": "Cambia nome Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "setname"
+          ]
+        },
+        {
+          "name": "bio",
+          "usage": "<testo>",
+          "description": "Cambia biografia",
+          "details": "Cambia biografia. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "setbio"
+          ]
+        },
+        {
+          "name": "avatar",
+          "usage": "[utente o risposta]",
+          "description": "Mostra foto profilo",
+          "details": "Mostra foto profilo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "av"
+          ]
+        },
+        {
+          "name": "afk",
+          "usage": "[messaggio]",
+          "description": "Attiva risposte AFK nelle chat private",
+          "details": "Attiva AFK con messaggio opzionale e GIF. Solo chat private, una risposta per persona ogni 6 ore. Ripetere afk cambia messaggio e azzera durata e destinatari. Al riavvio è off.",
+          "aliases": []
+        },
+        {
+          "name": "back",
+          "usage": "",
+          "description": "Disattiva AFK e mostra durata",
+          "details": "Disattiva AFK e mostra la durata dell'assenza. Alias: unafk. I normali messaggi in uscita non disattivano AFK.",
+          "aliases": [
+            "unafk"
+          ]
+        },
+        {
+          "name": "afkstatus",
+          "usage": "",
+          "description": "Mostra stato e messaggio AFK",
+          "details": "Mostra stato, durata, messaggio e ultimo problema di AFK.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "mass surveillance",
+      "title": "Monitoraggio",
+      "aliases": [
+        "mass",
+        "masssurveillance"
+      ],
+      "shortcut": "mass",
+      "commands": [
+        {
+          "name": "surveillance",
+          "usage": "",
+          "description": "Avvia log gruppo",
+          "details": "Solo gruppi; registra i nuovi messaggi.",
+          "aliases": []
+        },
+        {
+          "name": "sustop",
+          "usage": "",
+          "description": "Ferma log gruppo",
+          "details": "Solo gruppi; ferma la registrazione.",
+          "aliases": []
+        },
+        {
+          "name": "stalk",
+          "usage": "[utente]",
+          "description": "Segui utente",
+          "details": "@username, ID o risposta; segue nei gruppi visibili.",
+          "aliases": []
+        },
+        {
+          "name": "unstalk",
+          "usage": "[utente]",
+          "description": "Ferma utente",
+          "details": "@username, ID o risposta; ferma il monitoraggio.",
+          "aliases": []
+        },
+        {
+          "name": "monitorlist",
+          "usage": "",
+          "description": "Elenca persone e gruppi osservati",
+          "details": "Mostra persone seguite con stalk e gruppi con surveillance: nomi, username e ID. Funziona anche in privato e nei Messaggi salvati. Gli elementi non più accessibili restano elencati con il loro ID.",
+          "aliases": []
+        },
+        {
+          "name": "stalklist",
+          "usage": "",
+          "description": "Elenca persone seguite",
+          "details": "Mostra tutte le persone seguite con stalk, con nome, username e ID.",
+          "aliases": []
+        },
+        {
+          "name": "sulist",
+          "usage": "",
+          "description": "Elenca gruppi monitorati",
+          "details": "Mostra tutti i gruppi con surveillance attiva, con titolo, username e ID.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "title": "Strumenti",
+      "aliases": [],
+      "shortcut": "tools",
+      "commands": [
+        {
+          "name": "calc",
+          "usage": "<espressione>",
+          "description": "Calcolatrice",
+          "details": "Calcolatrice. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "passgen",
+          "usage": "[lunghezza]",
+          "description": "Password casuale",
+          "details": "Password casuale. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": [
+            "genpassword",
+            "passwordgen"
+          ]
+        },
+        {
+          "name": "note",
+          "usage": "<nome> <testo>",
+          "description": "Salva nota locale",
+          "details": "Salva nota locale. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "editnote",
+          "usage": "<nome> <testo>",
+          "description": "Modifica nota",
+          "details": "Modifica nota. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "delnote",
+          "usage": "<nome>",
+          "description": "Elimina nota",
+          "details": "Elimina nota. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "shownote",
+          "usage": "<nome>",
+          "description": "Mostra nota",
+          "details": "Mostra nota. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "sendnote",
+          "usage": "<nome>",
+          "description": "Invia nota nella chat",
+          "details": "Invia nota nella chat. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "notes",
+          "usage": "",
+          "description": "Elenca note",
+          "details": "Elenca note. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "poll",
+          "usage": "<domanda | opzione | opzione>",
+          "description": "Sondaggio Telegram",
+          "details": "Sondaggio Telegram. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "cpoll",
+          "usage": "<domanda | opzione | opzione>",
+          "description": "Sondaggio non anonimo",
+          "details": "Sondaggio non anonimo. Usa il prefisso corrente. Testo: argomento oppure messaggio in risposta.",
+          "aliases": []
+        },
+        {
+          "name": "search",
+          "usage": "<testo> [pagina]",
+          "description": "Cerca comandi, descrizioni e alias",
+          "details": "Cerca per nome, alias, categoria e descrizione. Esempio: search morse. Ultimo numero opzionale: pagina. Mostra solo i comandi autorizzati e rispetta minimal-mode.",
+          "aliases": []
+        },
+        {
+          "name": "allcmds",
+          "usage": "[pagina]",
+          "description": "Elenco completo dei comandi disponibili",
+          "details": "Elenco alfabetico con sintassi e descrizioni, diviso in pagine. allcmds 2 apre la seconda. Mostra solo i comandi autorizzati e rispetta minimal-mode.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "osint",
+      "title": "OSINT",
+      "aliases": [],
+      "shortcut": "osint",
+      "commands": [
+        {
+          "name": "osintjobs",
+          "usage": "",
+          "description": "Stato e coda delle ricerche estese",
+          "details": "Elenca ricerche estese attive e ultime cinque terminate, con ID, stato, tempo e posizione in coda. Il proprietario vede tutte; gli altri solo le proprie nella chat corrente. Coda massima di 10 operazioni, una alla volta. Le ricerche non ripartono dopo un riavvio.",
+          "aliases": []
+        },
+        {
+          "name": "osintcancel",
+          "usage": "<ID>",
+          "description": "Annulla una ricerca estesa",
+          "details": "Annulla una ricerca estesa in coda o in corso, usando l'ID di osintjobs. Il proprietario può fermarle tutte; gli altri solo le proprie nella chat corrente. I messaggi già inviati restano in chat.",
+          "aliases": []
+        },
+        {
+          "name": "geosint",
+          "usage": "[in risposta]",
+          "description": "Analizza foto, video o URL",
+          "details": "Rispondi a una foto, video o URL del media",
+          "aliases": []
+        },
+        {
+          "name": "email",
+          "usage": "<email>",
+          "description": "Dominio e MX",
+          "details": "MX, Gravatar pubblico, registrazioni rilevate da holehe e breach noti XposedOrNot. Nessuna password restituita.",
+          "aliases": []
+        },
+        {
+          "name": "username",
+          "usage": "<nome>",
+          "description": "Profili pubblici",
+          "details": "Scansione asincrona del dataset WhatsMyName con indicatori delle pagine. Possibili falsi positivi; report completo TXT.",
+          "aliases": []
+        },
+        {
+          "name": "domain",
+          "usage": "<dominio>",
+          "description": "DNS e RDAP",
+          "details": "WHOIS, DNS, SPF/DMARC e sottodomini pubblicati nei certificati, con link di approfondimento.",
+          "aliases": []
+        },
+        {
+          "name": "ip",
+          "usage": "<indirizzo>",
+          "description": "Info IP pubblico",
+          "details": "Solo IP pubblici: geolocalizzazione approssimativa e dati già indicizzati da Shodan InternetDB. Nessuna scansione attiva delle porte.",
+          "aliases": [
+            "iplookup"
+          ]
+        },
+        {
+          "name": "myip",
+          "usage": "",
+          "description": "Mostra sempre 127.0.0.1",
+          "details": "Risponde sempre con 127.0.0.1 in grassetto.",
+          "aliases": []
+        },
+        {
+          "name": "dns",
+          "usage": "<dominio> [tipo]",
+          "description": "Record DNS",
+          "details": "Tipi: A, AAAA, MX, TXT, NS, CNAME. Predefinito: A.",
+          "aliases": []
+        },
+        {
+          "name": "rdap",
+          "usage": "<dominio>",
+          "description": "Registro dominio",
+          "details": "Mostra date, stato e nameserver pubblici.",
+          "aliases": []
+        },
+        {
+          "name": "ssl",
+          "usage": "<dominio>",
+          "description": "Certificato TLS",
+          "details": "Mostra il certificato TLS pubblico sulla porta 443.",
+          "aliases": []
+        },
+        {
+          "name": "subdomains",
+          "usage": "<dominio>",
+          "description": "Sottodomini CT",
+          "details": "Legge nomi dai certificati pubblici di crt.sh.",
+          "aliases": []
+        },
+        {
+          "name": "harvester",
+          "usage": "<dominio>",
+          "description": "Riepilogo dominio",
+          "details": "Riepiloga DNS e sottodomini da fonti pubbliche.",
+          "aliases": []
+        },
+        {
+          "name": "phone",
+          "usage": "<+numero|regione numero>",
+          "description": "Numero, paese, operatore e formati",
+          "details": "Numero, paese, operatore e formati. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "namesearch",
+          "usage": "<nome cognome>",
+          "description": "Varianti username e ricerche pubbliche",
+          "details": "Varianti username e ricerche pubbliche. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "breach",
+          "usage": "<email>",
+          "description": "Breach noti, senza password",
+          "details": "Breach noti, senza password. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "telegram",
+          "usage": "<@username|t.me/...>",
+          "description": "Profilo Telegram pubblico",
+          "details": "Profilo Telegram pubblico. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "dorks",
+          "usage": "<testo>",
+          "description": "Query di ricerca avanzata",
+          "details": "Query di ricerca avanzata. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "imageosint",
+          "usage": "[in risposta]",
+          "description": "Ricerca inversa ed EXIF del file",
+          "details": "Ricerca inversa ed EXIF del file. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "exif",
+          "usage": "[in risposta]",
+          "description": "Metadati e GPS dell'immagine",
+          "details": "Metadati e GPS dell'immagine. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "forwardinfo",
+          "usage": "[in risposta]",
+          "description": "Autore visibile dell'inoltro",
+          "details": "Autore visibile dell'inoltro. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "autoosint",
+          "usage": "[valore o risposta]",
+          "description": "Rileva il tipo e avvia la ricerca",
+          "details": "Rileva il tipo e avvia la ricerca. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        },
+        {
+          "name": "osintall",
+          "usage": "<valore>",
+          "description": "Ricerche correlate per il valore",
+          "details": "Ricerche correlate per il valore. Report da AbelXeon/OSINT-BOT, con link e allegati quando disponibili.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "soundcloud",
+      "title": "SoundCloud",
+      "aliases": [
+        "sc"
+      ],
+      "shortcut": "soundcloud",
+      "commands": [
+        {
+          "name": "sclyrics",
+          "usage": "[on|off|status]",
+          "description": "Lyrics riga per riga in chat",
+          "details": "on cerca su LRCLIB e invia le righe sincronizzate nella chat corrente; off ferma ovunque. Senza argomento mostra lo stato. Una sola chat attiva, non riparte al riavvio.",
+          "aliases": []
+        },
+        {
+          "name": "scnp",
+          "usage": "",
+          "description": "Brano corrente",
+          "details": "Brano, artista, album, stato, tempo e volume del player SoundCloud selezionato.",
+          "aliases": []
+        },
+        {
+          "name": "scplay",
+          "usage": "",
+          "description": "Riprendi canzone",
+          "details": "Riprende il brano nella scheda SoundCloud collegata tramite WebNowPlaying.",
+          "aliases": []
+        },
+        {
+          "name": "scpause",
+          "usage": "",
+          "description": "Metti in pausa",
+          "details": "Mette in pausa il brano nella scheda SoundCloud collegata.",
+          "aliases": []
+        },
+        {
+          "name": "sctoggle",
+          "usage": "",
+          "description": "Play / pausa",
+          "details": "Alterna play e pausa nella scheda SoundCloud collegata.",
+          "aliases": []
+        },
+        {
+          "name": "scnext",
+          "usage": "",
+          "description": "Canzone successiva",
+          "details": "Passa al prossimo brano della coda SoundCloud, se disponibile.",
+          "aliases": []
+        },
+        {
+          "name": "scprev",
+          "usage": "",
+          "description": "Canzone precedente",
+          "details": "Passa al brano precedente della coda SoundCloud, se disponibile.",
+          "aliases": []
+        },
+        {
+          "name": "scvolume",
+          "usage": "[0-100]",
+          "description": "Mostra / cambia volume",
+          "details": "Senza valore mostra il volume; con un intero da 0 a 100 lo cambia.",
+          "aliases": []
+        },
+        {
+          "name": "scseek",
+          "usage": "<secondi|mm:ss>",
+          "description": "Cambia posizione",
+          "details": "Accetta secondi, mm:ss o hh:mm:ss entro la durata del brano.",
+          "aliases": []
+        },
+        {
+          "name": "screpeat",
+          "usage": "<off|all|one>",
+          "description": "Ripetizione",
+          "details": "off disattiva, all ripete la coda, one ripete il brano.",
+          "aliases": []
+        },
+        {
+          "name": "scshuffle",
+          "usage": "[on|off|toggle]",
+          "description": "Riproduzione casuale",
+          "details": "on attiva, off disattiva; senza argomento alterna lo stato.",
+          "aliases": []
+        },
+        {
+          "name": "sclike",
+          "usage": "[on|off|toggle]",
+          "description": "Like al brano",
+          "details": "on aggiunge il like, off lo rimuove; senza argomento alterna. Richiede accesso a SoundCloud.",
+          "aliases": []
+        },
+        {
+          "name": "scplayers",
+          "usage": "",
+          "description": "Schede SoundCloud",
+          "details": "Elenca solo i player SoundCloud; * indica la scheda controllata.",
+          "aliases": []
+        },
+        {
+          "name": "scselect",
+          "usage": "<ID|auto>",
+          "description": "Scegli scheda",
+          "details": "Sceglie un ID da scplayers; auto segue il player SoundCloud più attivo. Se la scheda si chiude torna automatico.",
+          "aliases": []
+        },
+        {
+          "name": "scconnect",
+          "usage": "",
+          "description": "Collegamento WebNowPlaying",
+          "details": "Mostra porta e istruzioni per il Custom Adapter di WebNowPlaying sullo stesso PC del selfbot.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "title": "Impostazioni",
+      "aliases": [],
+      "shortcut": "settings",
+      "commands": [
+        {
+          "name": "doctor",
+          "usage": "",
+          "description": "Diagnostica servizi, configurazione ed errori",
+          "details": "Diagnostica locale senza richieste ai servizi esterni: Telegram, configurazione, backup, log, ricerche, SoundCloud, lyrics, AFK, anti-login e ultimi errori. Riservato al proprietario. Non mostra credenziali.",
+          "aliases": []
+        },
+        {
+          "name": "errornotify",
+          "usage": "[on|off]",
+          "description": "Avvisi brevi nei Messaggi salvati",
+          "details": "on/off abilita avvisi generici nei Messaggi salvati, al massimo uno al minuto. Off inizialmente. Nessun testo cercato o contenuto degli errori viene inviato negli avvisi.",
+          "aliases": []
+        },
+        {
+          "name": "logconfig",
+          "usage": "[size|backups|days valore]",
+          "description": "Rotazione e conservazione log",
+          "details": "Senza argomenti mostra i limiti. size <byte> (65536-1000000000), backups <numero> (1-100), days <giorni> (0-3650). days 0 disattiva la scadenza temporale degli archivi chiusi. Limiti applicati anche agli archivi esistenti; i file pending di recupero sono esclusi.",
+          "aliases": []
+        },
+        {
+          "name": "access",
+          "usage": "",
+          "description": "Menu permessi per altre persone",
+          "details": "add/remove autorizza utenti; allow/block gestisce comandi e categorie. Di base esclusi settings, abuse, soundcloud e misc, con help incluso. Settings e abuse restano riservati al proprietario. Menu e help mostrano solo le categorie e i comandi abilitati. Permessi salvati per i riavvii.",
+          "aliases": []
+        },
+        {
+          "name": "status",
+          "usage": "",
+          "description": "Monitor attivi",
+          "details": "Mostra prefisso, timer e monitoraggi.",
+          "aliases": []
+        },
+        {
+          "name": "prefix",
+          "usage": "[simbolo]",
+          "description": "Cambia prefisso",
+          "details": "Un simbolo; /prefix / ripristina il prefisso.",
+          "aliases": []
+        },
+        {
+          "name": "deleteafter",
+          "usage": "[secondi]",
+          "description": "Timer risposte",
+          "details": "Timer delle risposte: 0 disattiva; massimo 3600 secondi. I comandi vengono cancellati subito.",
+          "aliases": [
+            "deletetimer"
+          ]
+        },
+        {
+          "name": "help",
+          "usage": "[voce] [pagina]",
+          "description": "Menu comandi",
+          "details": "Apri una categoria o un comando. I menu lunghi sono divisi in pagine da massimo 12 voci. Esempi: help text 2 oppure text 2. Numero e comandi precedente/successiva in fondo. Alias: h, ?.",
+          "aliases": [
+            "?",
+            "h"
+          ]
+        },
+        {
+          "name": "console",
+          "usage": "",
+          "description": "Mostra banner e impostazioni console",
+          "details": "Impostazioni della console salvate per i riavvii. NO_COLOR disattiva i colori.",
+          "aliases": []
+        },
+        {
+          "name": "clear",
+          "usage": "",
+          "description": "Pulisce la console",
+          "details": "Pulisce la console sul computer dove gira Melixsa. Non richiede argomenti.",
+          "aliases": [
+            "clearconsole"
+          ]
+        },
+        {
+          "name": "debug-mode",
+          "usage": "[on|off]",
+          "description": "Mostra o nasconde dettagli tecnici",
+          "details": "Senza argomento mostra lo stato. on mostra connessioni Telegram, task e dettagli WebNowPlaying; off li nasconde. Inizialmente off, salvato per i riavvii.",
+          "aliases": []
+        },
+        {
+          "name": "anti-login",
+          "usage": "[on|off|status]",
+          "description": "Protegge dai nuovi accessi Telegram",
+          "details": "Invalidazione dei codici ricevuti da Telegram e controllo delle nuove sessioni ogni 30 s. on/off/status; alias enable/disable. Le sessioni presenti all'avvio sono autorizzate. On inizialmente, impostazione salvata. Può bloccare anche i tuoi nuovi dispositivi.",
+          "aliases": [
+            "antilogin"
+          ]
+        },
+        {
+          "name": "minimal-mode",
+          "usage": "[on|off]",
+          "description": "Menu senza descrizioni",
+          "details": "on mostra nei menu solo comandi e sintassi, senza » e spiegazioni; off ripristina i dettagli. Senza argomento mostra lo stato. Inizialmente off, salvato per i riavvii.",
+          "aliases": []
+        },
+        {
+          "name": "timestamp",
+          "usage": "<on|off>",
+          "description": "Orario nei log console",
+          "details": "Impostazioni della console salvate per i riavvii. NO_COLOR disattiva i colori.",
+          "aliases": []
+        },
+        {
+          "name": "spacers",
+          "usage": "<on|off>",
+          "description": "Separatori nei log console",
+          "details": "Impostazioni della console salvate per i riavvii. NO_COLOR disattiva i colori.",
+          "aliases": []
+        },
+        {
+          "name": "pgradient",
+          "usage": "<on|off>",
+          "description": "Colori nei log console",
+          "details": "Impostazioni della console salvate per i riavvii. NO_COLOR disattiva i colori.",
+          "aliases": []
+        },
+        {
+          "name": "lgradient",
+          "usage": "<on|off>",
+          "description": "Colori del banner",
+          "details": "Impostazioni della console salvate per i riavvii. NO_COLOR disattiva i colori.",
+          "aliases": []
+        },
+        {
+          "name": "commandhistory",
+          "usage": "[1-50|clear]",
+          "description": "Cronologia locale senza argomenti",
+          "details": "Ultimi 10 comandi terminati; 1-50 sceglie quanti mostrarne, clear svuota. Solo nomi, orario, esito e durata, senza argomenti o destinatari. Solo in memoria, si azzera al riavvio. Riservato al proprietario.",
+          "aliases": [
+            "cmdhistory"
+          ]
+        },
+        {
+          "name": "backup",
+          "usage": "[create|view|restore|delete]",
+          "description": "Backup locali di preferenze e note",
+          "details": "create [nome], view <nome>, restore <nome> settings|notes, delete <nome>; backups elenca. Copie locali in data/backups/, massimo 30. Prima del ripristino salva una copia automatica. Esclusi credenziali, sessioni, accessi, monitoraggi e anti-login. Riservato al proprietario.",
+          "aliases": []
+        },
+        {
+          "name": "backups",
+          "usage": "",
+          "description": "Elenca i backup locali",
+          "details": "Elenca i backup locali in data/backups/. Usa backup per creazione, riepilogo, ripristino ed eliminazione. Nessun file viene inviato in chat. Riservato al proprietario.",
+          "aliases": []
+        }
+      ]
+    }
+  ]
+}
