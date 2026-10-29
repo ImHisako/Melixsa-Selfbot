@@ -1,0 +1,94 @@
+name: Build MelixsaUI (Windows)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-melixsa-ui.yml'
+      - 'MelixsaUI/**'
+  pull_request:
+    paths:
+      - '.github/workflows/build-melixsa-ui.yml'
+      - 'MelixsaUI/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: melixsa-ui-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Windows x64
+    runs-on: windows-2022
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: MelixsaUI
+
+    env:
+      CI: 'true'
+      CARGO_TERM_COLOR: always
+      CARGO_INCREMENTAL: '0'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: MelixsaUI/package-lock.json
+
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          rustup default stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: MelixsaUI/src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build Tauri application
+        # Tauri also builds the frontend through beforeBuildCommand.
+        # Arguments after the second -- are forwarded to Cargo.
+        run: node scripts/run.mjs desktop:build --ci -- --locked
+
+      - name: Prepare download
+        run: |
+          ./scripts/package-windows.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'MelixsaUI-Windows-x64')
+
+      - name: Upload Windows build
+        id: artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: MelixsaUI-Windows-x64
+          path: ${{ runner.temp }}/MelixsaUI-Windows-x64/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Download instructions
+        env:
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact-url }}
+        run: |
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value @(
+            '## MelixsaUI per Windows x64'
+            ''
+            "[Scarica MelixsaUI-Windows-x64]($env:ARTIFACT_URL)"
+            ''
+            'Estrai lo ZIP nella cartella principale di Melixsa, accanto a Cogs e .venv.'
+            'Avvia Apri MelixsaUI.cmd. Il compilatore C++ serve solo al runner GitHub.'
+            'Il backend Python del progetto e WebView2 devono essere disponibili sul PC.'
+          )
