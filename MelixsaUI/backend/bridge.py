@@ -310,6 +310,7 @@ class DesktopBridge:
         return self.snapshot()
 
     async def disconnect(self):
+        await self.stalk.close()
         await self.close_login()
         if self.task and not self.task.done():
             self.stop_event.set()

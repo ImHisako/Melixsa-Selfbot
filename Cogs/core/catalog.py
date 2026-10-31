@@ -83,7 +83,7 @@ HELP_DETAILS = {
     "surveillance": "Solo gruppi; registra i nuovi messaggi.",
     "sustop": "Solo gruppi; ferma la registrazione.",
     "chatinfo": "Solo gruppi; mostra ID, username e membri.",
-    "stalk": "@username, ID o risposta; segue nei gruppi visibili.",
+    "stalk": "@username, ID o risposta; registra messaggi e modifiche nei gruppi visibili, cambi di nome, username, foto profilo e stati online/offline forniti da Telegram.",
     "unstalk": "@username, ID o risposta; ferma il monitoraggio.",
     "monitorlist": "Mostra persone seguite con stalk e gruppi con surveillance: nomi, username e ID. Funziona anche in privato e nei Messaggi salvati. Gli elementi non più accessibili restano elencati con il loro ID.",
     "stalklist": "Mostra tutte le persone seguite con stalk, con nome, username e ID.",

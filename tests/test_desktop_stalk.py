@@ -1,4 +1,6 @@
 import asyncio
+import base64
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -8,6 +10,7 @@ from unittest.mock import AsyncMock, patch
 
 from Cogs.core import runtime
 from Cogs.core.instance_tools import InstanceLock
+from Cogs.core.stalk_tools import StalkMonitor
 from MelixsaUI.backend.bridge import DesktopBridge
 from MelixsaUI.backend.stalk import user_id
 from MelixsaUI.backend.surveillance import MAX_READ_BYTES
@@ -28,6 +31,9 @@ class DesktopStalkTests(unittest.IsolatedAsyncioTestCase):
             patcher.start()
             self.addCleanup(patcher.stop)
         runtime.state.save()
+        monitor = patch.object(runtime, "stalk_monitor", StalkMonitor(lambda: set(runtime.state.stalk), AsyncMock()))
+        monitor.start()
+        self.addCleanup(monitor.stop)
         self.bridge = DesktopBridge()
         self.addAsyncCleanup(self.bridge.close)
         self.user = SimpleNamespace(id=7, first_name="Anna", last_name="Rossi", username="anna", is_self=False, is_deleted=False)
@@ -69,6 +75,128 @@ class DesktopStalkTests(unittest.IsolatedAsyncioTestCase):
         self.connect()
         await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
         self.client.get_users.assert_awaited_once_with(7)
+
+    async def wait_for_profiles(self):
+        await asyncio.gather(*list(self.bridge.stalk.profile_tasks.values()))
+
+    def add_photo(self):
+        self.user.photo = SimpleNamespace(small_file_id="anna-photo")
+        self.client.download_media = AsyncMock(return_value=io.BytesIO(b"profile photo"))
+
+    async def test_enable_downloads_photo_and_reuses_cached_profile(self):
+        self.connect()
+        self.add_photo()
+        await self.bridge.dispatch("stalk_set", {"user": "@anna", "enabled": True})
+        await self.wait_for_profiles()
+        for _ in range(2):
+            result = await self.bridge.dispatch("stalk_overview", {})
+            self.assertEqual(result["users"][0]["photo"],
+                             "data:image/jpeg;base64," + base64.b64encode(b"profile photo").decode("ascii"))
+        self.client.get_users.assert_awaited_once_with("@anna")
+        self.client.download_media.assert_awaited_once_with("anna-photo", in_memory=True)
+
+    async def test_existing_targets_load_profiles_without_being_enabled_again(self):
+        self.connect()
+        self.add_photo()
+        runtime.state.stalk = {7}
+        initial = await self.bridge.dispatch("stalk_overview", {})
+        self.assertIsNone(initial["users"][0]["photo"])
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertEqual(result["users"][0]["name"], "Anna Rossi")
+        self.assertTrue(result["users"][0]["photo"].startswith("data:image/jpeg;base64,"))
+        self.client.get_users.assert_awaited_once_with(7)
+
+    async def test_missing_photo_keeps_profile_and_logs_available(self):
+        self.connect()
+        self.client.download_media = AsyncMock()
+        self.write_log()
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertIsNone(result["users"][0]["photo"])
+        self.assertEqual(result["users"][0]["name"], "Anna Rossi")
+        self.assertEqual(len((await self.bridge.dispatch("stalk_logs", {"user_id": "7"}))["records"]), 1)
+        self.client.download_media.assert_not_awaited()
+
+    async def test_photo_failure_does_not_break_monitoring_or_retry_every_poll(self):
+        self.connect()
+        self.add_photo()
+        self.client.download_media.side_effect = OSError("Photo unavailable")
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        await self.wait_for_profiles()
+        self.assertEqual(runtime.MonitorState.load().stalk, {7})
+        self.assertIsNone(result["users"][0]["photo"])
+        self.assertEqual(result["users"][0]["name"], "Anna Rossi")
+        self.client.download_media.assert_awaited_once()
+
+    async def test_unavailable_existing_user_does_not_break_logs(self):
+        self.connect()
+        self.write_log()
+        self.client.get_users.side_effect = ValueError("Unknown user")
+        await self.bridge.dispatch("stalk_overview", {})
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertEqual(result["users"][0]["name"], "Anna Rossi")
+        self.assertIsNone(result["users"][0]["photo"])
+        self.assertEqual(len((await self.bridge.dispatch("stalk_logs", {"user_id": "7"}))["records"]), 1)
+        self.client.get_users.assert_awaited_once_with(7)
+
+    async def test_invalid_or_oversized_downloads_are_not_sent_to_ui(self):
+        self.connect()
+        self.add_photo()
+        for stream in (io.BytesIO(), io.BytesIO(b"x" * 2_000_001), "photo.jpg", None):
+            with self.subTest(stream_type=type(stream).__name__):
+                self.client.download_media.return_value = stream
+                await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+                await self.wait_for_profiles()
+                result = await self.bridge.dispatch("stalk_overview", {})
+                self.assertIsNone(result["users"][0]["photo"])
+
+    async def test_cached_photo_is_cleared_when_user_removes_it(self):
+        self.connect()
+        self.add_photo()
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        self.user.photo = None
+        self.bridge.stalk.profile_refresh_at.clear()
+        await self.bridge.dispatch("stalk_overview", {})
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertIsNone(result["users"][0]["photo"])
+
+    async def test_pending_photo_does_not_block_logs_and_disconnect_cancels_it(self):
+        self.connect()
+        self.add_photo()
+        self.write_log()
+        started = asyncio.Event()
+
+        async def download(*args, **kwargs):
+            started.set()
+            await asyncio.Event().wait()
+
+        self.client.download_media.side_effect = download
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await asyncio.wait_for(started.wait(), timeout=1)
+        result = await asyncio.wait_for(self.bridge.dispatch("stalk_logs", {"user_id": "7"}), timeout=1)
+        self.assertEqual(len(result["records"]), 1)
+        tasks = list(self.bridge.stalk.profile_tasks.values())
+        await self.bridge.disconnect()
+        self.assertTrue(all(task.cancelled() for task in tasks))
+        self.assertEqual(self.bridge.stalk.profile_tasks, {})
+
+    async def test_offline_overview_reuses_photo_without_telegram_requests(self):
+        self.connect()
+        self.add_photo()
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        await self.bridge.disconnect()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertTrue(result["users"][0]["photo"])
+        self.client.get_users.assert_awaited_once_with(7)
+        self.client.download_media.assert_awaited_once()
 
     async def test_enable_requires_a_connection(self):
         with self.assertRaises(ValueError):
@@ -190,6 +318,84 @@ class DesktopStalkTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["records"][0]["date"], "2026-10-29T10:01:00+00:00")
         self.assertEqual(result["records"][0]["text"], "Ciao 🌙\nSeconda riga")
         self.assertEqual(result["records"][2]["chat_id"], "-200")
+
+    async def test_profile_and_presence_event_types_keep_values_and_no_group(self):
+        events = ("name_changed", "username_changed", "photo_changed", "online", "offline")
+        self.write_log(records=[self.record(None, event=event, chat_id=None, old_value="prima", new_value=None,
+                                            source="poll", text="") for event in events])
+        result = await self.bridge.dispatch("stalk_logs", {"user_id": "7"})
+        self.assertEqual([record["event"] for record in result["records"]], list(reversed(events)))
+        for record in result["records"]:
+            self.assertEqual(record["old_value"], "prima")
+            self.assertIsNone(record["new_value"])
+            self.assertEqual(record["chat_id"], "")
+            self.assertEqual(record["message_id"], "")
+            self.assertEqual(record["source"], "poll")
+
+    async def test_profile_event_values_are_bounded_and_non_strings_are_ignored(self):
+        self.write_log(records=[self.record(None, event="name_changed", chat_id=None, old_value="a" * 1000, new_value={"unexpected": True})])
+        result = await self.bridge.dispatch("stalk_logs", {"user_id": "7"})
+        self.assertEqual(len(result["records"][0]["old_value"]), 512)
+        self.assertIsNone(result["records"][0]["new_value"])
+
+    async def test_runtime_change_invalidates_cached_avatar_before_five_minutes(self):
+        self.connect()
+        self.add_photo()
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        self.user.photo.small_file_id = "new-photo"
+        self.client.download_media.return_value = io.BytesIO(b"new image")
+        await runtime.stalk_monitor.observe_user(self.user)
+        first = await self.bridge.dispatch("stalk_overview", {})
+        self.assertIsNone(first["users"][0]["photo"])
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertEqual(result["users"][0]["photo"], "data:image/jpeg;base64," + base64.b64encode(b"new image").decode("ascii"))
+        self.assertEqual(self.client.download_media.await_count, 2)
+
+    async def test_failed_avatar_invalidation_keeps_retry_backoff(self):
+        self.connect()
+        self.add_photo()
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        self.user.photo.small_file_id = "new-photo"
+        await runtime.stalk_monitor.observe_user(self.user)
+        self.client.get_users.side_effect = ValueError("Unavailable profile")
+        for _ in range(2):
+            await self.bridge.dispatch("stalk_overview", {})
+            await self.wait_for_profiles()
+        self.assertEqual(self.client.get_users.await_count, 2)
+
+    async def test_failed_new_photo_download_does_not_show_previous_photo(self):
+        self.connect()
+        self.add_photo()
+        await self.bridge.dispatch("stalk_set", {"user": "7", "enabled": True})
+        await self.wait_for_profiles()
+        self.user.photo.small_file_id = "new-photo"
+        await runtime.stalk_monitor.observe_user(self.user)
+        self.client.download_media.side_effect = OSError("Download unavailable")
+        await self.bridge.dispatch("stalk_overview", {})
+        await self.wait_for_profiles()
+        result = await self.bridge.dispatch("stalk_overview", {})
+        self.assertIsNone(result["users"][0]["photo"])
+
+    async def test_monitor_events_are_written_and_read_through_real_log_pipeline(self):
+        writer = runtime.LogWriter(self.logs)
+        await writer.start()
+        self.addAsyncCleanup(writer.close)
+        with patch.object(runtime, "writer", writer):
+            runtime.state.stalk = {7}
+            runtime.state.save()
+            runtime.stalk_monitor.seed(self.user)
+            runtime.stalk_monitor.submit = runtime.submit_stalk_event
+            await runtime.stalk_monitor.observe(7, {"name": "Anna Bianchi", "username": "newanna", "photo_id": "456", "status": "online"})
+            await runtime.stalk_monitor.observe(7, {"status": "offline"})
+            await writer.close()
+        result = await self.bridge.dispatch("stalk_logs", {"user_id": "7"})
+        self.assertEqual([record["event"] for record in result["records"]],
+                         ["offline", "online", "photo_changed", "username_changed", "name_changed"])
+        self.assertEqual(result["records"][-1]["old_value"], "Anna Rossi")
+        self.assertEqual(result["records"][-1]["new_value"], "Anna Bianchi")
 
     async def test_invalid_and_other_user_records_are_skipped(self):
         path = self.write_log(records=[self.record(1), self.record(2, user_id=8), self.record(3, user_id=True)])

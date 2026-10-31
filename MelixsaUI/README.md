@@ -129,14 +129,29 @@ sintassi e istruzioni abbiano una traduzione inglese.
 Apri **Stalk** nella sidebar, inserisci `@username` oppure un ID utente positivo e
 premi **Attiva Stalk** mentre Telegram è connesso. Il pannello usa lo stesso elenco
 persistente dei comandi `stalk`, `unstalk` e `stalklist`; le modifiche ai comandi
-appaiono automaticamente nella UI. I nomi vengono letti quando attivi un utente
-dall’app oppure dai registri esistenti; senza queste informazioni viene mostrato l’ID.
+appaiono automaticamente nella UI. Nomi e foto profilo vengono caricati in background
+da Telegram anche per gli utenti già presenti. La cache delle immagini dura cinque
+minuti e viene invalidata quando il motore rileva un cambio di foto.
+La foto compare nell’elenco, nel profilo selezionato e accanto ai messaggi; se non è
+disponibile vengono mostrate le iniziali. Offline restano disponibili i profili già
+caricati nella sessione e i nomi ricavati dai registri; in assenza di un nome si usa l’ID.
 
 Seleziona un utente per leggere i nuovi messaggi e le modifiche già registrati nei
-gruppi visibili al tuo account. Ogni evento indica il gruppo di provenienza. Puoi
-cercare nei testi e nei gruppi, filtrare le modifiche ed esportare gli eventi visibili.
+gruppi visibili al tuo account, oltre ai cambi di nome, username e foto profilo e
+agli stati online/offline espliciti. I messaggi indicano il gruppo di provenienza;
+i cambi del profilo mostrano i valori precedenti e successivi. Puoi cercare negli
+eventi, filtrarli per tipo ed esportare la vista in JSON.
 La lettura include gli archivi ruotati ed è limitata a 100 eventi e 2 MB, con
 aggiornamento ogni 5 secondi. Non viene scaricato lo storico precedente.
+
+Il monitoraggio è nel motore Python e continua anche con questa pagina chiusa.
+Gli aggiornamenti Telegram sono affiancati da un controllo dei profili ogni 30
+secondi: l’orario dei cambi rilevati dal controllo indica quando sono stati osservati.
+La prima lettura del profilo all’avvio o alla riattivazione stabilisce un riferimento,
+senza generare cambiamenti fittizi. “Recentemente” o uno stato nascosto non sono
+interpretati come offline. La copertura dipende dagli aggiornamenti che Telegram
+rende disponibili al tuo account. I cambi di foto registrano l’identificatore della
+foto visibile; le immagini precedenti non vengono archiviate.
 
 Puoi fermare un utente e leggere i registri anche offline. Fermarlo conserva i file;
 durante la sessione desktop resta nell’elenco anche senza registri. Attivarlo richiede

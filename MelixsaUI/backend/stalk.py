@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 from datetime import datetime, timezone
+import io
 import re
+import time
 
 from Cogs.core import runtime
 from Cogs.core.instance_tools import InstanceLock
+from Cogs.core.stalk_tools import photo_id
 from MelixsaUI.backend.surveillance import MAX_RECORDS, log_files, read_records, text
 
 
@@ -34,6 +38,11 @@ class StalkService:
         self.bridge = bridge
         self.metadata = {}
         self.log_labels = {}
+        self.profiles = {}
+        self.profile_tasks = {}
+        self.profile_refresh_at = {}
+        self.profile_requested_photo = {}
+        self.profile_slots = asyncio.Semaphore(3)
 
     @property
     def connected(self):
@@ -47,7 +56,68 @@ class StalkService:
 
     async def overview(self):
         active = await self.active_ids()
-        return await asyncio.to_thread(self._overview, active)
+        result = await asyncio.to_thread(self._overview, active)
+        for user in result["users"]:
+            self.schedule_profile(int(user["id"]))
+        return result
+
+    def schedule_profile(self, target, user=None):
+        if not self.connected or target in self.profile_tasks:
+            return
+        current = runtime.stalk_monitor.profiles.get(target, {})
+        photo_changed = "photo_id" in current and (target not in self.profile_requested_photo or current["photo_id"] != self.profile_requested_photo[target])
+        if user is None and not photo_changed and time.monotonic() < self.profile_refresh_at.get(target, 0):
+            return
+        task = asyncio.create_task(self._refresh_profile(target, user))
+        if "photo_id" in current:
+            self.profile_requested_photo[target] = current["photo_id"]
+        self.profile_tasks[target] = task
+        task.add_done_callback(lambda done: self.profile_tasks.pop(target, None))
+
+    async def _refresh_profile(self, target, user):
+        client = self.bridge.client
+        try:
+            async with self.profile_slots:
+                if not self.connected or self.bridge.client is not client:
+                    return
+                # Photos must never delay the local log viewer or other bridge requests.
+                await asyncio.wait_for(self._load_profile(client, target, user), timeout=10)
+                self.profile_refresh_at[target] = time.monotonic() + 300
+        except Exception:
+            # Unavailable/private photos and failed lookups must not stop Stalk.
+            self.profile_refresh_at[target] = time.monotonic() + 60
+
+    async def _load_profile(self, client, target, user):
+        user = user or await client.get_users(target)
+        if user_id(user.id) != target:
+            raise ValueError("Profilo Telegram non corrispondente.")
+        previous = self.profiles.get(target, {})
+        current_photo_id = photo_id(getattr(user, "photo", None))
+        profile = {
+            **previous,
+            "name": text(" ".join(filter(None, (user.first_name, user.last_name)))),
+            "username": text(user.username, 64),
+            "photo_id": current_photo_id,
+            "photo": previous.get("photo") if current_photo_id == previous.get("photo_id") else None,
+        }
+        self.profiles[target] = profile
+        photo = getattr(user, "photo", None)
+        data = None
+        if photo:
+            stream = await client.download_media(photo.small_file_id, in_memory=True)
+            if not isinstance(stream, io.BytesIO) or not 0 < stream.getbuffer().nbytes <= 2_000_000:
+                raise ValueError("Foto profilo non disponibile.")
+            data = "data:image/jpeg;base64," + base64.b64encode(stream.getvalue()).decode("ascii")
+        self.profiles[target] = {**profile, "photo": data}
+
+    async def close(self):
+        tasks = list(self.profile_tasks.values())
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        self.profile_tasks.clear()
+        self.profile_refresh_at.clear()
+        self.profile_requested_photo.clear()
 
     def _overview(self, active):
         files = stalk_files()
@@ -59,10 +129,12 @@ class StalkService:
                 latest = read_records(logs, target, identity_field="user_id", limit=1, budget=65536)["records"]
                 self.log_labels[target] = (last_update, latest[0] if latest else {})
             record = self.log_labels.get(target, (None, {}))[1]
-            metadata = self.metadata.get(target, {})
+            metadata = self.profiles.get(target, self.metadata.get(target, {}))
+            observed = runtime.stalk_monitor.profiles.get(target, {}) if self.connected else {}
             users.append({
-                "id": str(target), "name": metadata.get("name") or record.get("sender") or "",
-                "username": metadata.get("username", record.get("username", "")),
+                "id": str(target), "name": observed.get("name") or metadata.get("name") or record.get("sender") or "",
+                "username": observed.get("username", metadata.get("username", record.get("username", ""))),
+                "photo": metadata.get("photo") if observed.get("photo_id", metadata.get("photo_id")) == metadata.get("photo_id") else None,
                 "enabled": target in active,
                 "log_bytes": sum(item[2].st_size for item in logs), "log_files": len(logs),
                 "last_update": datetime.fromtimestamp(last_update, timezone.utc).isoformat() if last_update else None,
@@ -71,6 +143,7 @@ class StalkService:
         return {"users": users, "active_count": len(active), "log_bytes": sum(item["log_bytes"] for item in users)}
 
     async def set_enabled(self, params):
+        active = await self.active_ids()
         enabled = params.get("enabled")
         if type(enabled) is not bool:
             raise ValueError("Indica se attivare o fermare il monitoraggio.")
@@ -116,6 +189,13 @@ class StalkService:
                 await save()
         # Keep stopped users visible for this desktop session, even without log files.
         self.metadata[target_id] = metadata
+        if enabled:
+            if target_id not in active:
+                runtime.stalk_monitor.seed(user)
+            self.profiles[target_id] = {**self.profiles.get(target_id, {}), **metadata}
+            self.schedule_profile(target_id, user)
+        else:
+            runtime.stalk_monitor.forget(target_id)
         action = "attivato" if enabled else "fermato"
         self.bridge.record(f"Monitoraggio Stalk dell’utente {target_id} {action}.", "Stalk")
         return {**await self.overview(), "changed_id": str(target_id)}

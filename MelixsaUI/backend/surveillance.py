@@ -9,6 +9,7 @@ import re
 
 from Cogs.core import runtime
 from Cogs.core.instance_tools import InstanceLock
+from Cogs.core.stalk_tools import PROFILE_EVENTS
 
 
 LOG_NAME = re.compile(r"group_(-[1-9][0-9]*)\.txt(?:\.([0-9]+))?\Z")
@@ -85,8 +86,10 @@ def read_records(files, target_id, *, identity_field="chat_id", limit=MAX_RECORD
                         except (ValueError, UnicodeError):
                             skipped += 1
                             continue
-                        records.append({
-                            "event": "edited" if raw.get("event") == "edited" else "new",
+                        event = raw.get("event")
+                        profile_event = identity_field == "user_id" and isinstance(event, str) and event in PROFILE_EVENTS
+                        record = {
+                            "event": event if profile_event or event == "edited" else "new",
                             "date": text(raw.get("edit_date") or raw.get("date"), 64),
                             "message_id": str(raw["message_id"]) if type(raw.get("message_id")) is int else "",
                             "sender": text(raw.get("name") or raw.get("sender_chat_title") or raw.get("username")) or "Utente senza nome",
@@ -95,7 +98,14 @@ def read_records(files, target_id, *, identity_field="chat_id", limit=MAX_RECORD
                             "media": text(raw.get("media"), 64),
                             "chat_title": text(raw.get("chat_name") or raw.get("chat_title")),
                             "chat_id": str(raw["chat_id"]) if type(raw.get("chat_id")) is int else "",
-                        })
+                        }
+                        if identity_field == "user_id":
+                            record.update({
+                                "old_value": text(raw["old_value"], 512) if isinstance(raw.get("old_value"), str) else None,
+                                "new_value": text(raw["new_value"], 512) if isinstance(raw.get("new_value"), str) else None,
+                                "source": "poll" if raw.get("source") == "poll" else "telegram",
+                            })
+                        records.append(record)
                         if len(records) == limit:
                             limited = position > 0 or len(lines) > 1 or file_index < len(files) - 1
                             break

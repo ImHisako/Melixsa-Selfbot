@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 import tempfile
 import unittest
 from pathlib import Path
@@ -75,3 +76,36 @@ class MonitorListTests(unittest.IsolatedAsyncioTestCase):
             self.assertLessEqual(len(call.args[1].encode("utf-16-le")) // 2, 3500)
         output = "\n".join(call.args[1] for call in respond.call_args_list)
         self.assertEqual(output.count("ID »"), 60)
+
+
+class StalkMessageTests(unittest.IsolatedAsyncioTestCase):
+    def message(self, *, chat_type=enums.ChatType.SUPERGROUP, sender=7, service=False):
+        return SimpleNamespace(
+            from_user=SimpleNamespace(id=sender, first_name="Anna", last_name="Rossi", username="anna", is_self=sender == 99),
+            sender_chat=None, media=None, service=service, text="Messaggio di prova", caption=None,
+            chat=SimpleNamespace(id=-100 if chat_type != enums.ChatType.PRIVATE else sender, type=chat_type, title="Gruppo di prova", first_name="Anna", last_name="Rossi"),
+            date=datetime.now(timezone.utc), edit_date=None, id=1, reply_to_message_id=None,
+        )
+
+    async def test_monitored_user_messages_and_edits_are_logged_across_visible_groups(self):
+        writer = SimpleNamespace(submit=AsyncMock())
+        with patch.object(runtime, "state", runtime.MonitorState(stalk={7})), patch.object(runtime, "writer", writer):
+            first = self.message(chat_type=enums.ChatType.GROUP)
+            second = self.message()
+            second.chat.id = -200
+            await runtime.process_message(None, first, 99)
+            await runtime.process_message(None, second, 99)
+            await runtime.handle_event(second, "edited")
+        records = [call.args[1] for call in writer.submit.await_args_list]
+        self.assertEqual([record["event"] for record in records], ["new", "new", "edited"])
+        self.assertEqual([record["chat_id"] for record in records], [-100, -200, -200])
+        self.assertTrue(all(call.args[0].name == "stalk_7.txt" for call in writer.submit.await_args_list))
+
+    async def test_private_unmonitored_own_and_service_messages_are_not_logged(self):
+        writer = SimpleNamespace(submit=AsyncMock())
+        with patch.object(runtime, "state", runtime.MonitorState(stalk={7, 99})), patch.object(runtime, "writer", writer), \
+             patch.object(runtime.afk, "reply", new_callable=AsyncMock):
+            for message in (self.message(chat_type=enums.ChatType.PRIVATE), self.message(sender=8),
+                            self.message(sender=99), self.message(service=True)):
+                await runtime.process_message(None, message, 99)
+        writer.submit.assert_not_awaited()

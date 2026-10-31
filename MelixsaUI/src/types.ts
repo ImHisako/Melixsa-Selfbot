@@ -83,16 +83,24 @@ export interface StalkUser {
   id: string;
   name: string;
   username: string;
+  photo: string | null;
   enabled: boolean;
   log_bytes: number;
   log_files: number;
   last_update: string | null;
 }
 export interface StalkOverview { users: StalkUser[]; active_count: number; log_bytes: number }
+export interface StalkRecord extends Omit<SurveillanceRecord, 'event'> {
+  event: 'new' | 'edited' | 'name_changed' | 'username_changed' | 'photo_changed' | 'online' | 'offline';
+  chat_id: string;
+  old_value: string | null;
+  new_value: string | null;
+  source: 'telegram' | 'poll';
+}
 export interface StalkLogs {
   user_id: string;
   limit: number;
-  records: (SurveillanceRecord & { chat_id: string })[];
+  records: StalkRecord[];
   limited: boolean;
   skipped: number;
 }

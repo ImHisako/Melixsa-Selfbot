@@ -51,3 +51,11 @@ logs/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Pacchetto Windows estratto nella cartella principale
+/melixsa-ui.exe
+/SHA256SUMS.txt
+/Apri MelixsaUI.cmd
+/LEGGIMI.txt
+
+Cogs/core/__pycache__/catalog.cpython-312.pyc

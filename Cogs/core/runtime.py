@@ -20,7 +20,7 @@ from pyrogram.types import Message, MessageEntity, ChatPermissions
 from . import (
     afk_tools, anti_login_tools, autoreact_tools, config_tools, console_tools, geosint_tools,
     luna_tools, lyrics_tools, osint_features, osint_tools, soundcloud_tools,
-    persistence_tools, log_tools, jobs_tools, error_tools, backup_tools, ghost_tools,
+    persistence_tools, log_tools, jobs_tools, error_tools, backup_tools, ghost_tools, stalk_tools,
 )
 from .catalog import (
     HELP_CATEGORIES, HELP_CATEGORY_ALIASES, HELP_DETAILS, CATEGORY_COMMANDS,
@@ -214,6 +214,13 @@ async def log_settings():
 
 state = MonitorState.load()
 writer = LogWriter(LOG_DIR, settings=log_settings)
+
+
+async def submit_stalk_event(target, record):
+    await writer.submit(LOG_DIR / f"stalk_{target}.txt", record)
+
+
+stalk_monitor = stalk_tools.StalkMonitor(lambda: set(state.stalk), submit_stalk_event)
 osint_jobs = jobs_tools.JobManager()
 error_notifier = None
 soundcloud = soundcloud_tools.SoundCloudAdapter()
@@ -509,6 +516,11 @@ async def _main(*, control=None) -> None:
     async def on_edited_message(_client: Client, message: Message) -> None:
         await handle_event(message, "edited")
 
+    @app.on_raw_update(group=-1)
+    async def on_stalk_update(_client, update, users, _chats):
+        if own_id is not None:
+            await stalk_monitor.handle_update(update, users)
+
     try:
         async with app:
             error_notifier = error_tools.ErrorNotifier(app, lambda: state.error_notify)
@@ -516,6 +528,7 @@ async def _main(*, control=None) -> None:
             try:
                 me = await app.get_me()
                 own_id = me.id
+                stalk_monitor.start(app, own_id=own_id)
                 await anti_login.start(app)
                 console_tools.event("Selfbot", f"Telegram connesso | account={own_id}", debug=True)
                 if control is None:
@@ -525,6 +538,8 @@ async def _main(*, control=None) -> None:
                     await control.on_ready(app, me)
                     await control.stop_event.wait()
             finally:
+                own_id = None
+                await stalk_monitor.close()
                 console_tools.error_callback = None
                 await error_notifier.close()
                 await osint_jobs.close()

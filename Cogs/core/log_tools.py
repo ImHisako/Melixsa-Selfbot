@@ -237,7 +237,10 @@ class LogWriter:
             if echo:
                 chat = record.get("chat_name") or record.get("chat_title") or "Chat senza nome"
                 user = record.get("name") or (f"@{record['username']}" if record.get("username") else record.get("sender_chat_title") or "Utente senza nome")
-                console_tools.event("Message", f"{record.get('event')} | chat={chat} | user={user} | {record.get('text') or record.get('media')}")
+                if record.get("event") in {"name_changed", "username_changed", "photo_changed", "online", "offline"}:
+                    console_tools.event("Stalk", f"{record['event']} | user={user} | {record.get('old_value')} → {record.get('new_value')}")
+                else:
+                    console_tools.event("Message", f"{record.get('event')} | chat={chat} | user={user} | {record.get('text') or record.get('media')}")
         warnings = []
         for path in touched:
             try:

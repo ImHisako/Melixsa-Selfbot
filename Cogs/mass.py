@@ -74,12 +74,17 @@ async def handle_command(client: Client, message: Message, command: str, argumen
         await runtime.respond(message, "Monitoraggio del gruppo fermato.")
     elif command in {"stalk", "unstalk"}:
         user = await runtime.resolve_user(client, message, argument)
+        was_enabled = user.id in runtime.state.stalk
         async with runtime.state_transaction():
             if command == "stalk":
                 runtime.state.stalk.add(user.id)
             else:
                 runtime.state.stalk.discard(user.id)
+        if command == "stalk" and not was_enabled:
+            runtime.stalk_monitor.seed(user)
+        elif command == "unstalk":
+            runtime.stalk_monitor.forget(user.id)
         action = "attivo" if command == "stalk" else "fermato"
-        await runtime.respond(message, f"Monitoraggio di {user.id} {action} in tutti i gruppi visibili.")
+        await runtime.respond(message, f"Monitoraggio di {user.id} {action}: messaggi nei gruppi visibili, profilo e stato forniti da Telegram.")
     else:
         raise ValueError(f"Comando non previsto nella sezione: {command}")

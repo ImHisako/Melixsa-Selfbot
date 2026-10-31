@@ -240,7 +240,7 @@
   "Mostra stato, durata, messaggio e ultimo problema di AFK.": "Show AFK status, duration, message and latest problem.",
   "Solo gruppi; registra i nuovi messaggi.": "Groups only; record new messages.",
   "Solo gruppi; ferma la registrazione.": "Groups only; stop recording.",
-  "@username, ID o risposta; segue nei gruppi visibili.": "@username, ID or reply; follow in visible groups.",
+  "@username, ID o risposta; registra messaggi e modifiche nei gruppi visibili, cambi di nome, username, foto profilo e stati online/offline forniti da Telegram.": "@username, ID or reply; records messages and edits in visible groups, changes to names, usernames and profile photos, and online/offline updates provided by Telegram.",
   "@username, ID o risposta; ferma il monitoraggio.": "@username, ID or reply; stop monitoring.",
   "Mostra persone seguite con stalk e gruppi con surveillance: nomi, username e ID. Funziona anche in privato e nei Messaggi salvati. Gli elementi non più accessibili restano elencati con il loro ID.": "Show people followed with stalk and groups monitored with surveillance: names, usernames and IDs. Also works in private chats and Saved Messages. Inaccessible entries remain listed by ID.",
   "Mostra tutte le persone seguite con stalk, con nome, username e ID.": "Show everyone followed with stalk, including name, username and ID.",

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ArrowDownToLine, CheckCircle2, CircleAlert, Clock3, FileText, FolderArchive, Hash, Info, ListFilter, LoaderCircle, MessageSquareText, PencilLine, Plus, RefreshCw, Search, UserRoundSearch, Users } from 'lucide-react';
-import { Button, PageIntro, SectionTitle, Toggle } from '../components/ui';
+import { ArrowDownToLine, AtSign, CheckCircle2, CircleAlert, Clock3, FileText, FolderArchive, Hash, Image, Info, ListFilter, LoaderCircle, MessageSquareText, PencilLine, Plus, RefreshCw, Search, UserRoundSearch, Users, Wifi, WifiOff } from 'lucide-react';
+import { Avatar, Button, PageIntro, SectionTitle, Toggle } from '../components/ui';
 import { useStalk } from '../hooks/useStalk';
 import { useI18n } from '../i18n';
-import type { Connection, StalkLogs, StalkUser } from '../types';
+import type { Connection, StalkLogs, StalkRecord, StalkUser } from '../types';
 import './surveillance.css';
 import './stalk.css';
 
@@ -22,7 +22,7 @@ export function Stalk({ connection, disabled }: { connection: Connection; disabl
   const logs = state.logs?.user_id === state.selected ? state.logs : null;
 
   return <>
-    <PageIntro eyebrow={t('MONITORAGGIO DEGLI UTENTI')} title="Stalk." description={t('Gestisci gli utenti seguiti e consulta i messaggi raccolti nei gruppi visibili al tuo account.')}
+    <PageIntro eyebrow={t('MONITORAGGIO DEGLI UTENTI')} title="Stalk." description={t('Messaggi nei gruppi visibili, cambi del profilo e stato online/offline degli utenti seguiti.')}
       action={<Button variant="secondary" loading={state.pending} disabled={blocked} onClick={() => void state.refresh()}><RefreshCw size={15} />{t('Aggiorna')}</Button>} />
     <div className="surveillance-stats">
       <div className="panel surveillance-status">
@@ -41,7 +41,7 @@ export function Stalk({ connection, disabled }: { connection: Connection; disabl
         <label className="surveillance-target"><Hash size={17} /><input aria-label={t('Utente da seguire')} placeholder={t('@username oppure 123456789')} maxLength={64} value={query} onChange={event => setQuery(event.target.value)} required /></label>
         <Button type="submit" disabled={blocked || !connected || !query.trim()} loading={state.pending}><Plus size={15} />{t('Attiva Stalk')}</Button>
       </form>
-      <div className="surveillance-hint"><Info size={13} /><span>{connected ? t('Registra solo i nuovi messaggi e le modifiche nei gruppi visibili. Non scarica lo storico.') : t('Collega Telegram per attivare Stalk. Puoi leggere i registri e fermare gli utenti anche offline.')}</span></div>
+      <div className="surveillance-hint"><Info size={13} /><span>{connected ? t('Registra i nuovi messaggi nei gruppi e i cambi di nome, username, foto e stato forniti da Telegram. Funziona anche con questa pagina chiusa.') : t('Collega Telegram per attivare Stalk. Puoi leggere i registri e fermare gli utenti anche offline.')}</span></div>
     </section>
     <div className="surveillance-workspace">
       <section className="panel surveillance-groups">
@@ -51,7 +51,7 @@ export function Stalk({ connection, disabled }: { connection: Connection; disabl
           <button type="button" className={`filter-button ${onlyActive ? 'active' : ''}`} aria-pressed={onlyActive} onClick={() => setOnlyActive(!onlyActive)}><ListFilter size={13} />{t('Solo attivati')}</button>
         </div>
         {state.loading ? <Loading text={t('Caricamento degli utenti…')} /> : users.length ? <div className="surveillance-group-list">{users.map(user => <div className={`surveillance-group-row ${state.selected === user.id ? 'selected' : ''}`} key={user.id}>
-          <button type="button" className="surveillance-group-select" aria-pressed={state.selected === user.id} onClick={() => state.select(user.id)}><span className="surveillance-group-icon"><UserRoundSearch size={17} /></span><span><strong>{user.name || t('Utente {id}', { id: user.id })}</strong><span>{user.username ? `@${user.username} · ${user.id}` : user.id}</span><small>{user.log_files ? t('{size} di registri', { size: size(user.log_bytes, locale) }) : t('Nessun evento salvato')}</small></span></button>
+          <button type="button" className="surveillance-group-select" aria-pressed={state.selected === user.id} onClick={() => state.select(user.id)}><Avatar profile={user} size="small" /><span><strong>{user.name || t('Utente {id}', { id: user.id })}</strong><span>{user.username ? `@${user.username} · ${user.id}` : user.id}</span><small>{user.log_files ? t('{size} di registri', { size: size(user.log_bytes, locale) }) : t('Nessun evento salvato')}</small></span></button>
           <div className="surveillance-group-control"><Toggle label={t('Monitoraggio {name}', { name: user.name || user.id })} checked={user.enabled} disabled={blocked || (!connected && !user.enabled)} onChange={value => void state.setMonitoring(user.id, value)} /><span>{user.enabled ? connected ? t('Attivo') : t('In pausa') : t('Fermato')}</span></div>
         </div>)}</div> : <div className="surveillance-group-empty"><UserRoundSearch size={27} /><h3>{search || onlyActive ? t('Nessun utente trovato.') : t('Il primo utente parte da qui.')}</h3><p>{search || onlyActive ? t('Modifica la ricerca o rimuovi il filtro.') : t('Aggiungi uno username o un ID per iniziare.')}</p></div>}
         <div className="surveillance-group-footer"><Info size={13} />{t('Fermare un utente conserva i suoi registri.')}</div>
@@ -64,30 +64,54 @@ export function Stalk({ connection, disabled }: { connection: Connection; disabl
 function StalkLogViewer({ user, logs, connected }: { user?: StalkUser; logs: StalkLogs | null; connected: boolean }) {
   const { t, locale } = useI18n();
   const [search, setSearch] = useState('');
-  const [onlyEdits, setOnlyEdits] = useState(false);
+  const [eventFilter, setEventFilter] = useState('all');
   const records = useMemo(() => (logs?.records || []).filter(record =>
-    (!onlyEdits || record.event === 'edited') && `${record.sender} ${record.username} ${record.text} ${record.media} ${record.chat_title} ${record.chat_id}`.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-  ), [logs, search, onlyEdits]);
+    (eventFilter === 'all' || (eventFilter === 'messages' && isMessage(record)) || (eventFilter === 'profile' && ['name_changed', 'username_changed', 'photo_changed'].includes(record.event)) || (eventFilter === 'presence' && ['online', 'offline'].includes(record.event)) || (eventFilter === 'edited' && record.event === 'edited'))
+    && `${record.sender} ${record.username} ${record.text} ${record.media} ${record.chat_title} ${record.chat_id} ${record.old_value || ''} ${record.new_value || ''} ${t(eventKinds[record.event].label)}`.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+  ), [logs, search, eventFilter, t]);
+  const filtered = !!search || eventFilter !== 'all';
   return <section className="panel surveillance-viewer">
     <div className="surveillance-viewer-heading">
-      <div><span className="overline">{t('REGISTRO DELL’UTENTE')}</span><h2>{user ? user.name || t('Utente {id}', { id: user.id }) : t('I messaggi, gruppo per gruppo.')}</h2><p>{user ? <><span className={`status-dot ${user.enabled && connected ? '' : 'offline'}`} />{user.enabled ? connected ? t('Monitoraggio attivo') : t('Attivato · Telegram scollegato') : t('Monitoraggio fermato')}<span className="viewer-id">{user.id}</span></> : t('Seleziona un utente per leggere il suo registro locale.')}</p></div>
+      <div className="stalk-profile-heading">{user && <Avatar profile={user} />}<div><span className="overline">{t('REGISTRO DELL’UTENTE')}</span><h2>{user ? user.name || t('Utente {id}', { id: user.id }) : t('I messaggi, gruppo per gruppo.')}</h2><p>{user ? <><span className={`status-dot ${user.enabled && connected ? '' : 'offline'}`} />{user.enabled ? connected ? t('Monitoraggio attivo') : t('Attivato · Telegram scollegato') : t('Monitoraggio fermato')}<span className="viewer-id">{user.id}</span></> : t('Seleziona un utente per leggere il suo registro locale.')}</p></div></div>
       <button className="icon-button" aria-label={t('Esporta registro Stalk')} title={t('Esporta gli eventi visualizzati')} disabled={!records.length} onClick={() => logs && exportLogs({ ...logs, records })}><ArrowDownToLine size={18} /></button>
     </div>
-    {user && <div className="surveillance-log-toolbar"><div className="search-field"><Search size={15} /><input aria-label={t('Cerca nei messaggi Stalk')} placeholder={t('Cerca testo o gruppo…')} value={search} onChange={event => setSearch(event.target.value)} /></div><button type="button" className={`filter-button ${onlyEdits ? 'active' : ''}`} aria-pressed={onlyEdits} onClick={() => setOnlyEdits(!onlyEdits)}><PencilLine size={13} />{t('Modifiche')}</button></div>}
-    {!user ? <div className="surveillance-viewer-empty"><div className="surveillance-empty-art"><UserRoundSearch size={42} strokeWidth={1.2} /><span /><span /></div><h3>{t('Un registro per ogni utente.')}</h3><p>{t('Qui trovi i messaggi raccolti da Stalk, con il gruppo di provenienza e le modifiche.')}</p></div>
+    {user && <div className="surveillance-log-toolbar"><div className="search-field"><Search size={15} /><input aria-label={t('Cerca negli eventi Stalk')} placeholder={t('Cerca messaggi, profilo o stato…')} value={search} onChange={event => setSearch(event.target.value)} /></div><select className="stalk-event-filter" aria-label={t('Tipo di evento')} value={eventFilter} onChange={event => setEventFilter(event.target.value)}><option value="all">{t('Tutti gli eventi')}</option><option value="messages">{t('Messaggi')}</option><option value="edited">{t('Messaggi modificati')}</option><option value="profile">{t('Cambi del profilo')}</option><option value="presence">{t('Online / Offline')}</option></select></div>}
+    {!user ? <div className="surveillance-viewer-empty"><div className="surveillance-empty-art"><UserRoundSearch size={42} strokeWidth={1.2} /><span /><span /></div><h3>{t('Un registro per ogni utente.')}</h3><p>{t('Qui trovi messaggi, cambi del profilo e stati online/offline comunicati da Telegram.')}</p></div>
       : !logs ? <Loading text={t('Caricamento del registro…')} />
         : records.length ? <div className="surveillance-records">{records.map((record, index) => {
           const parsed = new Date(record.date);
-          return <article className={`surveillance-record ${record.event === 'edited' ? 'edited' : ''}`} key={`${record.chat_id}-${record.message_id}-${record.date}-${index}`}>
-            <div className="surveillance-record-top"><div className="surveillance-sender-avatar">{record.sender.slice(0, 1).toLocaleUpperCase()}</div><div><strong>{record.sender}</strong><span>{record.username ? `@${record.username}` : user.id}</span></div><span className={`record-kind ${record.event === 'edited' ? 'edited' : ''}`}>{record.event === 'edited' ? <PencilLine size={11} /> : <MessageSquareText size={11} />}{record.event === 'edited' ? t('Modificato') : t('Nuovo')}</span><time dateTime={record.date}>{Number.isNaN(parsed.getTime()) ? t('Orario non disponibile') : parsed.toLocaleString(locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</time></div>
-            <div className="stalk-record-context"><Users size={12} /><span>{record.chat_title || t('Gruppo {id}', { id: record.chat_id })}</span><span>{record.chat_id}</span></div>
-            <p>{record.text || (record.media ? t('Messaggio con allegato.') : t('Messaggio senza testo.'))}</p><div className="surveillance-record-bottom">{record.media && <span><FileText size={11} />{record.media}</span>}{record.message_id && <span>#{record.message_id}</span>}</div>
+          const { label, Icon } = eventKinds[record.event];
+          return <article className={`surveillance-record ${record.event === 'edited' ? 'edited' : ''} ${!isMessage(record) ? 'stalk-profile-record' : ''}`} key={`${record.event}-${record.chat_id}-${record.message_id}-${record.date}-${index}`}>
+            <div className="surveillance-record-top"><Avatar profile={{ name: record.sender, photo: user.photo }} size="small" /><div><strong>{record.sender}</strong><span>{record.username ? `@${record.username}` : user.id}</span></div><span className={`record-kind ${record.event === 'edited' ? 'edited' : ''}`}><Icon size={11} />{t(label)}</span><time dateTime={record.date}>{Number.isNaN(parsed.getTime()) ? t('Orario non disponibile') : parsed.toLocaleString(locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</time></div>
+            {isMessage(record) ? <><div className="stalk-record-context"><Users size={12} /><span>{record.chat_title || t('Gruppo {id}', { id: record.chat_id })}</span><span>{record.chat_id}</span></div><p>{record.text || (record.media ? t('Messaggio con allegato.') : t('Messaggio senza testo.'))}</p><div className="surveillance-record-bottom">{record.media && <span><FileText size={11} />{record.media}</span>}{record.message_id && <span>#{record.message_id}</span>}</div></> : <ProfileEvent record={record} />}
           </article>;
-        })}</div> : <div className="surveillance-viewer-empty compact"><div className="empty-state-icon"><MessageSquareText size={27} /></div><h3>{search || onlyEdits ? t('Nessun evento corrispondente.') : t('Il registro è ancora vuoto.')}</h3><p>{search || onlyEdits ? t('Prova a cambiare ricerca o rimuovere il filtro.') : t('I nuovi messaggi appariranno quando l’utente scrive in un gruppo visibile e Melixsa è connessa.')}</p></div>}
+        })}</div> : <div className="surveillance-viewer-empty compact"><div className="empty-state-icon"><MessageSquareText size={27} /></div><h3>{filtered ? t('Nessun evento corrispondente.') : t('Il registro è ancora vuoto.')}</h3><p>{filtered ? t('Prova a cambiare ricerca o rimuovere il filtro.') : t('Gli eventi appariranno mentre Melixsa è connessa. Lo stato online/offline dipende dai dati visibili su Telegram.')}</p></div>}
+    {user && <div className="surveillance-log-note"><Info size={13} />{t('Online e offline vengono registrati solo quando Telegram comunica uno stato esplicito. “Recentemente” non equivale a offline.')}</div>}
     {logs?.skipped ? <div className="surveillance-log-note"><Info size={13} />{t('Alcune righe incomplete o non valide sono state ignorate.')}</div> : null}
     {logs?.limited && <div className="surveillance-log-note"><Info size={13} />{t('Vista limitata agli ultimi 100 eventi e a 2 MB di lettura.')}</div>}
     <div className="surveillance-viewer-footer"><span><Clock3 size={12} />{t('Aggiornamento ogni 5 secondi')}</span><span>{user ? t(records.length === 1 ? '{count} evento visualizzato' : '{count} eventi visualizzati', { count: records.length }) : t('Registri locali')}</span></div>
   </section>;
+}
+
+const eventKinds = {
+  new: { label: 'Nuovo', Icon: MessageSquareText },
+  edited: { label: 'Modificato', Icon: PencilLine },
+  name_changed: { label: 'Cambio nome', Icon: PencilLine },
+  username_changed: { label: 'Cambio username', Icon: AtSign },
+  photo_changed: { label: 'Cambio foto profilo', Icon: Image },
+  online: { label: 'Online', Icon: Wifi },
+  offline: { label: 'Offline', Icon: WifiOff },
+} as const;
+
+const isMessage = (record: StalkRecord) => record.event === 'new' || record.event === 'edited';
+
+function ProfileEvent({ record }: { record: StalkRecord }) {
+  const { t } = useI18n();
+  if (record.event === 'online' || record.event === 'offline') return <p>{record.event === 'online' ? t('Stato online rilevato.') : t('Stato offline rilevato.')}</p>;
+  const value = (raw: string | null, previous: boolean) => record.event === 'photo_changed'
+    ? t(raw ? previous ? 'Foto precedente' : 'Nuova foto' : 'Nessuna foto visibile')
+    : raw ? record.event === 'username_changed' ? `@${raw}` : raw : t('Non disponibile');
+  return <div className="stalk-profile-change"><div><span>{t('Prima')}</span><strong>{value(record.old_value, true)}</strong></div><span aria-hidden="true">→</span><div><span>{t('Dopo')}</span><strong>{value(record.new_value, false)}</strong></div><small>{record.event === 'photo_changed' ? t('Cambio della foto visibile rilevato. Le immagini precedenti non vengono archiviate.') : record.source === 'poll' ? t('Cambiamento rilevato dal controllo periodico del profilo.') : t('Aggiornamento comunicato da Telegram.')}</small></div>;
 }
 
 function Loading({ text }: { text: string }) {

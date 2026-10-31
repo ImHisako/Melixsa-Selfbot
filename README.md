@@ -199,7 +199,7 @@ Shared command permissions apply to all authorized users. Menus show only comman
 | --- | --- |
 | `/surveillance` | Record new messages from other participants in the current group |
 | `/sustop` | Stop monitoring the current group |
-| `/stalk @username` | Monitor that user's new messages across groups visible to your account |
+| `/stalk @username` | Monitor messages and edits in visible groups, profile changes and explicit online/offline updates |
 | `/unstalk @username` | Stop monitoring that user globally |
 | `/monitorlist` | List monitored users and groups with available names, usernames, and IDs |
 | `/stalklist` | List monitored users |
@@ -215,6 +215,8 @@ Group and user monitoring are independent. `/stalk` applies across all visible g
 Monitoring begins when enabled and does not download history. It records group messages and edits, excludes your own messages and service messages, and does not record private-chat conversations or download monitored media.
 
 Records are UTF-8 JSON lines in `data/logs/group_<ID>.txt` and `data/logs/stalk_<USER_ID>.txt`. They contain timestamps, chat/message identifiers, available sender information, text or captions, and media types. Edits use the `edited` event. Monitoring configuration is restored after restarting.
+
+Stalk also records `name_changed`, `username_changed`, `photo_changed`, `online`, and `offline` events in the same user log. Profile changes include `old_value` and `new_value`; profile events have no chat or message identifier. The core runtime processes Telegram updates and checks profiles every 30 seconds, including when the desktop Stalk page is closed or Melixsa is started from the CLI. Poll timestamps indicate when the change was observed. The first successful profile read establishes a baseline without inventing historical changes; restarting or re-enabling monitoring establishes a new baseline. Only explicit online/offline data visible to your account is recorded: approximate or hidden last-seen values are never treated as offline. Photo changes track the visible photo identifier; previous image files are not archived.
 
 ## Utilities and account tools
 

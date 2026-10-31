@@ -774,7 +774,7 @@
           "name": "stalk",
           "usage": "[utente]",
           "description": "Segui utente",
-          "details": "@username, ID o risposta; segue nei gruppi visibili.",
+          "details": "@username, ID o risposta; registra messaggi e modifiche nei gruppi visibili, cambi di nome, username, foto profilo e stati online/offline forniti da Telegram.",
           "aliases": []
         },
         {
