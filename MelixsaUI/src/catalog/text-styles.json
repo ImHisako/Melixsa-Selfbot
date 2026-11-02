@@ -1,0 +1,32 @@
+[
+  { "id": "plain", "label": "Normale" },
+  {
+    "id": "fraktur", "label": "Fraktur (Gothic)",
+    "lower": "𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷",
+    "upper": "𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ"
+  },
+  { "id": "zalgo", "label": "Zalgo", "suffix": "\u0334\u033a\u030f\u0309\u0308\u0301" },
+  {
+    "id": "squared", "label": "Squared",
+    "lower": "🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉",
+    "upper": "🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉"
+  },
+  {
+    "id": "circled", "label": "Circled",
+    "lower": "ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ",
+    "upper": "ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ"
+  },
+  {
+    "id": "boldItalic", "label": "Bold Italic",
+    "lower": "𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯",
+    "upper": "𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕"
+  },
+  { "id": "fullWidth", "label": "Full Width", "full_width": true },
+  { "id": "strikethrough", "label": "Strikethrough", "suffix": "\u0336" },
+  { "id": "invisibleSeparator", "label": "Invisible Separator", "suffix": "\u2060", "invisible": true },
+  {
+    "id": "undetected", "label": "Undetected", "invisible": true, "suffix": "\u2060",
+    "lower": "\u0430\u042c\u0441d\u0435fg\u043d\u0456\u0458\u043al\u043c\u043f\u043e\u0440qr\u0455\u0442\u0446vw\u0445\u0443\u1d22",
+    "upper": "\u0410\u042c\u0421D\u0415FG\u041d\u0406\u0408\u041aL\u041c\u041f\u041e\u0420QR\u0405\u0422\u0426VW\u0425\u0423\u1d22"
+  }
+]

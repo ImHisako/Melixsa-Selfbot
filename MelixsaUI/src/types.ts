@@ -1,5 +1,5 @@
 export type Connection = 'offline' | 'connecting' | 'connected' | 'error' | 'login_phone' | 'login_code' | 'login_password';
-export type Page = 'home' | 'commands' | 'modules' | 'surveillance' | 'stalk' | 'settings' | 'activity';
+export type Page = 'home' | 'chats' | 'commands' | 'modules' | 'surveillance' | 'stalk' | 'settings' | 'activity';
 export interface Settings {
   prefix: string;
   delete_after: number;
@@ -104,3 +104,30 @@ export interface StalkLogs {
   limited: boolean;
   skipped: number;
 }
+
+export interface TelegramChat {
+  id: string;
+  title: string;
+  username: string;
+  kind: string;
+  unread: number;
+  archived: boolean;
+  preview: string;
+  date: string | null;
+}
+export interface ChatDialogs { chats: TelegramChat[]; next_offset: number; has_more: boolean }
+export interface ChatMessage {
+  id: number;
+  text: string;
+  sender: string;
+  sender_id: string;
+  outgoing: boolean;
+  date: string | null;
+  edited: string | null;
+  media: string;
+  service: boolean;
+  reply_to_id: number | null;
+}
+export interface ChatHistory { chat_id: string; messages: ChatMessage[]; has_more: boolean; next_before: number | null }
+export interface ProfilePhoto { photo: string | null; version: number }
+export interface ChatPhotos { photos: Record<string, ProfilePhoto>; pending: boolean }

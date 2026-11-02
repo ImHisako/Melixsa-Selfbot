@@ -56,6 +56,9 @@ registrazione di un nuovo account Telegram.
 
 ## Pagine
 
+- **Chat:** conversazioni principali e archiviate (private, bot, gruppi e canali),
+  ricerca e filtri, cronologia Telegram e invio di testo dal proprio account.
+  Il composer offre gli stili Unicode dell’esempio allegato con anteprima dal vivo.
 - **Home:** nome, username, foto profilo e ID letti da Telegram; durata della sessione;
   controlli rapidi e conteggi reali di gruppi e ricerche. Prima del collegamento viene
   mostrato lo stato scollegato. Il profilo sincronizzato viene conservato localmente
@@ -81,6 +84,44 @@ Modifiche ai comandi Telegram e agli interruttori convergono sullo stesso stato;
 aggiorna ogni 3 secondi. La chiusura dell'app arresta il motore e attende lo svuotamento dei log.
 La modalità desktop non avvia automaticamente SoundCloud e non invia il suo pannello di
 connessione nei Messaggi salvati. SoundCloud rimane disponibile tramite i comandi Telegram.
+
+### Usare Chat
+
+Collega Telegram dalla Home e apri **Chat**. L’elenco include conversazioni principali
+e archiviate, senza un limite totale di 200: **Carica altre chat** prosegue a blocchi
+di 60. Ricerca e filtri Tutte/Gruppi/Private/Canali si applicano alle conversazioni
+già caricate. **Aggiorna chat** ricarica l’elenco da Telegram.
+
+Le foto profilo di persone, bot, gruppi e canali compaiono nell’elenco,
+nell’intestazione della conversazione e accanto ai messaggi. Un clic sulla foto
+apre la versione ingrandita; chiudi con il pulsante, con Escape o cliccando fuori.
+Se la foto è assente, privata o non disponibile, vengono mostrate le iniziali.
+Le miniature visibili si caricano in background, con al massimo tre download
+contemporanei e una cache in memoria di 512 profili. La cache viene svuotata alla
+disconnessione. I cambi e le rimozioni delle foto invalidano la miniatura precedente;
+i profili non aggiornati dalla cronologia vengono ricontrollati dopo cinque minuti.
+Gli errori temporanei applicano una pausa prima del nuovo tentativo; una foto non
+disponibile non interrompe la lettura o l’invio dei messaggi.
+
+Seleziona una conversazione per leggere gli ultimi 50 messaggi; **Messaggi precedenti**
+carica altri blocchi di 50. La finestra recente si aggiorna ogni 5 secondi, incluse
+modifiche e cancellazioni, mentre la pagina è aperta. Un errore sospende l’aggiornamento
+fino a **Riprova**. Foto, video e documenti sono indicati con il tipo di allegato e
+l’eventuale didascalia; questa sezione non scarica né invia file multimediali.
+
+Scrivi nel composer e scegli **Stile del testo**: Normale, Fraktur, Zalgo, Squared,
+Circled, Bold Italic, Full Width, Strikethrough, Invisible Separator o Undetected.
+L’anteprima mostra il testo effettivo; il contatore controlla il limite di 4096 unità
+UTF-16 dopo la trasformazione, incluse emoji e segni combinanti. L’invio usa testo
+letterale, senza interpretare Markdown o HTML. Gli stili agiscono sui messaggi
+scritti in questa sezione; i comandi e le automazioni esistenti mantengono il loro testo.
+
+Premi **Invia messaggio** oppure **Ctrl+Invio** (Cmd+Invio su Mac). Invio da solo
+va a capo. Le bozze rimangono separate per conversazione durante la permanenza
+nella pagina e sono conservate in caso di errore; un invio fallito non viene ripetuto
+automaticamente dalla UI. Telegram applica i permessi di scrittura e i propri limiti.
+Contenuti e bozze restano in memoria, senza una nuova cache locale dello storico.
+L’apertura della cronologia non segna automaticamente i messaggi come letti.
 
 ### Usare Surveillance
 

@@ -1,5 +1,5 @@
 import { useI18n } from '../i18n';
-import { Activity, ArrowUpRight, BookOpen, ChevronRight, CircleHelp, Command, House, Layers2, LockKeyhole, PanelLeftClose, Radar, Search, Settings2, ShieldCheck, Sparkles, UserRoundSearch } from 'lucide-react';
+import { Activity, ArrowUpRight, BookOpen, ChevronRight, CircleHelp, Command, House, Layers2, LockKeyhole, MessageSquareText, PanelLeftClose, Radar, Search, Settings2, ShieldCheck, Sparkles, UserRoundSearch } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { desktop } from '../lib/bridge';
 import type { Page, Snapshot } from '../types';
@@ -10,6 +10,7 @@ export function Layout({ page, navigate, data, busy, onConnect, onCommands, chil
   const { t } = useI18n();
   const navigation: { id: Page; label: string; icon: typeof House; group: string }[] = [
     { id: 'home', label: 'Home', icon: House, group: t("IL TUO SPAZIO") },
+    { id: 'chats', label: t('Chat'), icon: MessageSquareText, group: t("IL TUO SPAZIO") },
     { id: 'commands', label: t('Comandi'), icon: BookOpen, group: t("IL TUO SPAZIO") },
     { id: 'modules', label: t("Automazioni"), icon: Layers2, group: t("IL TUO SPAZIO") },
     { id: 'surveillance', label: t("Surveillance"), icon: Radar, group: t("IL TUO SPAZIO") },

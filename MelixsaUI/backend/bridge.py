@@ -26,6 +26,7 @@ from Cogs.core.instance_tools import InstanceLock
 from MelixsaUI.backend.surveillance import SurveillanceService
 from MelixsaUI.backend.stalk import StalkService
 from MelixsaUI.backend.commands import command_catalog
+from MelixsaUI.backend.chats import ChatService
 
 
 class ActivityHandler(logging.Handler):
@@ -60,6 +61,7 @@ class DesktopBridge:
         self.profile = None
         self.surveillance = SurveillanceService(self)
         self.stalk = StalkService(self)
+        self.chats = ChatService(self)
         self.handler = ActivityHandler(self)
         console_tools.logger.addHandler(self.handler)
         try:
@@ -310,6 +312,7 @@ class DesktopBridge:
         return self.snapshot()
 
     async def disconnect(self):
+        await self.chats.close()
         await self.stalk.close()
         await self.close_login()
         if self.task and not self.task.done():
@@ -330,6 +333,16 @@ class DesktopBridge:
             raise ValueError("Parametri non validi.")
         if method == "command_catalog":
             return command_catalog()
+        if method == "chat_dialogs":
+            return await self.chats.list_dialogs(params)
+        if method == "chat_history":
+            return await self.chats.history(params)
+        if method == "chat_send":
+            return await self.chats.send(params)
+        if method == "chat_photos":
+            return await self.chats.profile_photos(params)
+        if method == "chat_photo":
+            return await self.chats.profile_photo(params)
         if method == "stalk_overview":
             return await self.stalk.overview()
         if method == "stalk_set":

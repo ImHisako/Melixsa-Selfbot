@@ -138,6 +138,11 @@ async fn bridge_request(
         "stalk_overview",
         "stalk_set",
         "stalk_logs",
+        "chat_dialogs",
+        "chat_history",
+        "chat_send",
+        "chat_photos",
+        "chat_photo",
     ]
     .contains(&method.as_str())
     {

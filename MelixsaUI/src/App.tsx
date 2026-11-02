@@ -13,6 +13,7 @@ import { Settings } from './pages/Settings';
 import { Surveillance } from './pages/Surveillance';
 import { Stalk } from './pages/Stalk';
 import { Commands } from './pages/Commands';
+import { Chats } from './pages/Chats';
 import type { Page } from './types';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
       {data.last_error && <div className="error-banner" role="alert"><CircleAlert size={18} /><p>{localize(data.last_error)}</p><Button variant="ghost" disabled={disabled} onClick={connect}>{t("Riprova")}</Button></div>}
       {page === 'home' && <Home data={data} disabled={disabled} busy={busy} navigate={setPage} save={save} connect={connect} refresh={() => void act('refresh_profile', {}, 'Profilo aggiornato.')} />}
       {page === 'commands' && <Commands prefix={data.settings.prefix} focusRequest={commandFocus} />}
+      {page === 'chats' && <Chats connection={data.connection} disabled={disabled} />}
       {page === 'modules' && <Modules data={data} disabled={disabled} busy={busy} save={save} />}
       {page === 'surveillance' && <Surveillance connection={data.connection} disabled={disabled} />}
       {page === 'stalk' && <Stalk connection={data.connection} disabled={disabled} />}
