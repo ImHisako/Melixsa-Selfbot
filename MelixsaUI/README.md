@@ -1,7 +1,72 @@
 # Melixsa Desktop
 
-Interfaccia desktop Tauri 2 + React + TypeScript per il motore Python di Melixsa.
-Tema grafite e lilla, font locali, pagine modulari e impostazioni condivise con i comandi Telegram.
+[Installazione in italiano](../README.it.md#installazione-windows) · [English quick start](../README.md#installation-on-windows) · [Riferimento comandi (inglese)](../docs/REFERENCE.md)
+
+Interfaccia desktop Windows per il motore Python di Melixsa, con chat, automazioni,
+monitoraggio e impostazioni condivise con i comandi Telegram.
+
+Per l’uso da terminale su Android consulta la [guida Termux](../docs/TERMUX.md).
+
+## Avvio rapido
+
+1. Completa **i punti 1 e 2 della [guida di installazione](../README.it.md#installazione-windows)**: ambiente Python, dipendenze e credenziali nel `.env`.
+2. Se `melixsa-ui.exe` e `Apri MelixsaUI.cmd` sono già nella cartella principale, passa al punto successivo. Altrimenti [scarica la build Windows](#scaricare-la-build-windows-pronta).
+3. Chiudi un eventuale Melixsa avviato da `run.cmd` e apri **Apri MelixsaUI.cmd**.
+4. Premi **Collega Telegram / Connect Telegram** nella Home. Al primo accesso inserisci numero, codice e password di verifica in due passaggi, se richiesta.
+
+Per usare la build pronta **non servono Node.js, Rust o i Build Tools C++**.
+Servono Windows x64, WebView2 e il Python del progetto. La sessione salvata in
+`data/melixsa.session` viene riutilizzata; le credenziali API restano nel backend.
+
+## Scaricare la build Windows pronta
+
+1. Nella pagina GitHub del progetto apri **Actions → Build MelixsaUI (Windows)**.
+2. Scegli una compilazione riuscita della stessa versione del sorgente e scarica **MelixsaUI-Windows-x64** da **Artifacts**.
+3. Estrai **tutti i file dello ZIP nella cartella principale di Melixsa**, accanto a `Cogs`, `MelixsaUI`, `.venv` e `selfbot.py`.
+4. Apri **Apri MelixsaUI.cmd** e collega Telegram dalla Home.
+
+Il pacchetto contiene l’eseguibile, il launcher, le istruzioni e `SHA256SUMS.txt`.
+Il backend Python va preparato una volta con la guida principale; non è incorporato
+nell’eseguibile. Conserva sul dispositivo il tuo `.env` e la cartella `data/`.
+
+Il [workflow](../.github/workflows/build-melixsa-ui.yml) parte ai push e alle pull request
+che modificano la UI o il workflow. Se è presente nel branch predefinito, puoi
+avviarlo da **Run workflow**. Se non è disponibile una build pronta, puoi usare
+`run.cmd` oppure compilare localmente.
+
+## Anteprima nel browser
+
+Con **Node.js 24**, apri **Anteprima UI.cmd** da questa cartella. Il launcher installa
+le dipendenze JavaScript se mancano e apre l’anteprima nel browser.
+
+Puoi vedere la UI e cambiare lingua e icona. L’accesso a Telegram e alle chat reali
+richiede l’app desktop. Per la sola anteprima non servono Python o compilatori C++.
+
+## Compilazione locale
+
+Questo percorso serve a chi sviluppa o vuole generare il proprio eseguibile.
+Richiede il backend Python configurato, **Node.js 24, Rust, Microsoft C++ Build Tools
+con Desktop development with C++ e Windows SDK, e WebView2**.
+
+- **Sviluppo:** apri **Avvia Melixsa.cmd** da questa cartella. Le dipendenze JavaScript vengono installate se mancano.
+- **Distribuzione:** dalla cartella `MelixsaUI`, esegui:
+
+  ```powershell
+  node scripts/run.mjs install
+  node scripts/run.mjs desktop:build
+  ```
+
+L’eseguibile viene creato in `src-tauri/target/release/melixsa-ui.exe`. Per preparare
+il pacchetto completo, sempre da questa cartella:
+
+```powershell
+.\scripts\package-windows.ps1 -Destination ..\dist\MelixsaUI-Windows-x64
+```
+
+Estrai i file del pacchetto nella cartella principale per usarli con il backend.
+Aggiornare i soli sorgenti non cambia la UI incorporata in un eseguibile già compilato.
+
+## Personalizzazione
 
 La UI è disponibile in **italiano e inglese**. Il selettore nella barra superiore o in
 **Impostazioni > Generali > Lingua** cambia subito testi, guida, login, notifiche e
@@ -11,54 +76,24 @@ altrimenti l’italiano. Se l’archiviazione locale non è disponibile, la scel
 per la sessione corrente. I messaggi AFK, i nomi e i contenuti Telegram mantengono
 il testo originale, così come le esportazioni JSON e i dettagli tecnici non riconosciuti.
 
-## Aprire subito l'anteprima
+In **Impostazioni > Generali > Icona dell’app** puoi scegliere tra **Melixsa**, con
+la luna e le stelle originali, ed **E-Girl**, con l’immagine inclusa nel progetto.
+La scelta aggiorna subito il logo della UI, l’icona della scheda browser e quella
+della finestra desktop. Viene salvata sul dispositivo e riapplicata alla riapertura;
+funziona anche offline e nell’anteprima, senza collegare Telegram.
+Se l’archiviazione locale non è disponibile, la scelta vale per l’apertura corrente.
+L’icona del file `.exe` e dei collegamenti di Windows segue la build installata.
 
-Esegui **Anteprima UI.cmd**. Serve Node.js; non serve un compilatore C++.
-L'anteprima nel browser mostra il design e i moduli: connessione Telegram e salvataggi
-sono disponibili nell'app desktop. Non vengono simulati salvataggi o connessioni.
-
-## Scaricare la build da GitHub Actions
-
-Il workflow **Build MelixsaUI (Windows)**, salvato in
-`.github/workflows/build-melixsa-ui.yml`, compila la UI su un runner GitHub
-**Windows x64** con gli strumenti C++ gia' disponibili.
-
-1. Carica su GitHub le modifiche al progetto, inclusi `.github/workflows`,
-   `MelixsaUI` e i lockfile `package-lock.json` e `src-tauri/Cargo.lock`.
-2. Il workflow parte ai push e alle pull request che modificano la UI o il workflow.
-   Per avviarlo manualmente, apri **Actions > Build MelixsaUI (Windows) > Run workflow**.
-   Per vedere il pulsante manuale, il file del workflow deve essere presente nel branch predefinito.
-3. Alla fine apri la run e scarica **MelixsaUI-Windows-x64** da **Artifacts**,
-   oppure usa il collegamento nel riepilogo della run. L'artifact rimane disponibile per 30 giorni.
-4. Estrai lo ZIP nella cartella principale di Melixsa, accanto a `Cogs`, `.venv`
-   e `selfbot.py`, poi apri **Apri MelixsaUI.cmd**.
-
-Il download contiene `melixsa-ui.exe`, il launcher, le istruzioni e l'hash SHA-256.
-Per usare questa build non devi compilare nulla sul PC: servono il backend Python
-del progetto gia' configurato e WebView2. La UI utilizza il `.env` e la sessione
-Telegram locali. Il workflow non richiede credenziali Telegram e carica soltanto
-i file di distribuzione indicati; non include un runtime Python autonomo.
-
-## Compilare e avviare Tauri sul PC
-
-1. Mantieni questa cartella dentro il progetto Melixsa, accanto a `Cogs`, `.venv` e `selfbot.py`.
-2. Verifica che l'ambiente Python del progetto sia pronto, con `requirements.txt` installato.
-3. Per compilare su Windows servono Rust, WebView2 e i **Microsoft C++ Build Tools**
-   con il workload **Desktop development with C++** e Windows SDK.
-   Vedi i [prerequisiti ufficiali di Tauri](https://v2.tauri.app/start/prerequisites/#windows).
-4. Esegui **Avvia Melixsa.cmd**. Il primo avvio compila l'app.
-5. Ferma un eventuale Melixsa avviato da `run.cmd`, poi premi **Collega Telegram** nella Home.
-
-La sessione `data/melixsa.session` viene riutilizzata. Se non è ancora autenticata,
-la UI chiede numero, codice e password a due fattori. Le credenziali API vengono lette
-dal `.env` del progetto; non sono inviate al frontend. Il bridge non effettua una
-registrazione di un nuovo account Telegram.
+La finestra desktop si apre massimizzata per adattarsi all’area disponibile dello
+schermo; il launcher **Apri MelixsaUI.cmd** richiede questa modalità anche per
+l’eseguibile già installato. Anche riducendola, le pagine restano scorrevoli e il
+menu laterale ha uno scorrimento indipendente, con guida e account accessibili in basso.
 
 ## Pagine
 
 - **Chat:** conversazioni principali e archiviate (private, bot, gruppi e canali),
   ricerca e filtri, cronologia Telegram e invio di testo dal proprio account.
-  Il composer offre gli stili Unicode dell’esempio allegato con anteprima dal vivo.
+  Il composer offre stili Unicode come Fraktur e Full Width, con anteprima dal vivo.
 - **Home:** nome, username, foto profilo e ID letti da Telegram; durata della sessione;
   controlli rapidi e conteggi reali di gruppi e ricerche. Prima del collegamento viene
   mostrato lo stato scollegato. Il profilo sincronizzato viene conservato localmente
@@ -228,12 +263,14 @@ src/
   hooks/            Stato, sincronizzazione e operazioni
   i18n/             Catalogo italiano/inglese, preferenza locale e formati
   lib/              Contratto con il bridge Tauri
-  pages/            Home, Comandi, Automazioni, Surveillance, Stalk, Impostazioni, Attività
+  pages/            Home, Chat, Comandi, Automazioni, Surveillance, Stalk, Impostazioni, Attività
   tokens.css        Colori, font e variabili del tema
   styles.css        Layout responsive, componenti e animazioni
+  viewport.css      Scorrimento e adattamento alle finestre ridotte
   types.ts          Modelli TypeScript
 src-tauri/          Shell Rust, configurazione Tauri e icone
-backend/bridge.py   Protocollo JSON e collegamento al runtime Python
+backend/           Bridge JSON, chat, foto profilo e monitoraggio
+public/            Icone e risorse incluse nella UI
 scripts/run.mjs    Runner npm
 ```
 
@@ -255,8 +292,7 @@ I test del bridge coprono validazione, salvataggio, rollback, preservazione degl
 concorrenza fra processi, AFK, profilo Telegram, Surveillance, Stalk e isolamento del protocollo. Usano directory
 temporanee e client simulati; non collegano l'account reale.
 
-La build del frontend e il collaudo visivo sono stati eseguiti. La compilazione nativa
-locale richiede il linker MSVC (`link.exe`), assente su questo computer. Il workflow
-permette di eseguirla su GitHub senza installare nuovi compilatori sul PC.
-La prima run remota va verificata dopo aver caricato il progetto su GitHub.
-Nome e foto reali verranno caricati al primo collegamento dall'app desktop.
+La compilazione nativa locale richiede il linker MSVC (`link.exe`) fornito dai
+Build Tools C++. Per eseguire una build Windows già compilata bastano il backend
+Python del progetto e WebView2; i compilatori servono soltanto a chi genera l’eseguibile.
+Le modifiche ai sorgenti della UI richiedono una nuova build desktop.

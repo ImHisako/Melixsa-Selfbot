@@ -1,616 +1,187 @@
 # Melixsa Selfbot
 
-A modular Telegram client for personal account automation, group monitoring, public-source research, and local SoundCloud playback control. Melixsa runs on [Kurigram](https://github.com/kurigram-org/kurigram) and authenticates through your Telegram user account.
+**English** · [Italiano](README.it.md)
 
-Commands are available to the account owner and authorized users. Monitoring configuration, access permissions, and selected preferences persist across restarts. The current command menus and most runtime messages are in Italian; this README documents the application in English.
+A Telegram client for your personal account, with a Windows desktop UI and commands you can send in Telegram. Includes chats, Unicode text styles, automations, group monitoring, public-source research, and SoundCloud controls.
 
-## Contents
+**On Android:** follow the [Termux guide (Italian)](docs/TERMUX.md) to install and run the Python command interface. The Windows steps below are for a PC.
 
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Command basics](#command-basics)
-- [Access control](#access-control)
-- [Monitoring](#monitoring)
-- [Utilities and account tools](#utilities-and-account-tools)
-- [Public-source research](#public-source-research)
-- [SoundCloud and lyrics](#soundcloud-and-lyrics)
-- [Account automation](#account-automation)
-- [Diagnostics and recovery](#diagnostics-and-recovery)
-- [Local data and GitHub uploads](#local-data-and-github-uploads)
-- [Project structure](#project-structure)
-- [Development](#development)
-- [Troubleshooting](#troubleshooting)
-- [Credits](#credits)
+## Installation on Windows
 
-## Features
+You need **Python 3.10 or later**, a Telegram account, and your API ID and API hash from [my.telegram.org](https://my.telegram.org). The desktop app also needs **Windows x64 and Microsoft Edge WebView2 Runtime**.
 
-- **Telegram command interface:** category menus, command help, command search and paginated listings, configurable prefixes, and automatic response deletion.
-- **Access control:** authorize users and manage shared commands individually or by category.
-- **Monitoring:** record new group messages and edits, with separate group and user logs, rotation, and retention controls.
-- **Research:** public email, username, domain, IP, phone, Telegram profile, image metadata, and geolocation tools.
-- **Utilities:** notes, polls, text transformations, password generation, profile management, and group administration.
-- **Automation:** private-chat AFK replies, reactions to outgoing messages, and protection against new logins.
-- **SoundCloud:** control a local browser player through WebNowPlaying and deliver synchronized lyrics to a chat.
-- **Operations:** local diagnostics, atomic state updates, preference and note snapshots, command history without arguments, backup recovery, queued log writes, and cancellable research jobs.
+The ready-made desktop build uses the project's Python environment. **You do not need Node.js, Rust, or C++ Build Tools to run it.**
 
-## Requirements
+### 1. Prepare the project
 
-- Python **3.10 or later**.
-- A Telegram user account and API credentials from [my.telegram.org](https://my.telegram.org).
-- Internet access for Telegram and the external services used by individual commands.
-- Windows for the included `run.cmd` launcher and the installation commands below.
+Download or clone the source code and extract it to a folder. Open **PowerShell in that folder**, next to `run.cmd` and `requirements.txt`, and run:
 
-Dependencies are listed in [requirements.txt](requirements.txt). These include `tgcrypto-pyrofork`, which provides the `tgcrypto` module used by Kurigram for cryptographic acceleration. A separate BotFather token is not required.
-
-Optional features require a WebNowPlaying browser extension for SoundCloud, a contact URL or email for LRCLIB lyrics, or your own API key for GeoSeeer analysis.
-
-## Installation
-
-### 1. Create the environment
-
-Download or clone the project, open **Command Prompt** in its root directory, and run:
-
-```bat
+```powershell
 py -3 -m venv .venv
-.venv\Scripts\python.exe -m pip install --no-cache-dir -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Create the virtual environment on each machine where you install a fresh copy of Melixsa.
+Do this once per computer. You can use the environment directly; no activation command is needed.
 
-### 2. Configure Telegram
+### 2. Set your Telegram credentials
 
-For a fresh installation, copy the configuration template:
+In the same PowerShell window:
 
-```bat
-copy .env.example .env
+```powershell
+if (-not (Test-Path -LiteralPath .env)) { Copy-Item .env.example .env }
+notepad .env
 ```
 
-If `.env` already exists, edit that file instead. Replace the following placeholders with your credentials from my.telegram.org:
+Replace the two example values with your own credentials and save:
 
 ```dotenv
 TELEGRAM_API_ID=123456
 TELEGRAM_API_HASH=replace_with_your_api_hash
 ```
 
-The API ID must be a valid positive numeric ID; the API hash must contain 32 hexadecimal characters. Leave optional integration fields empty until you configure them.
+The ID is numeric; the hash has 32 hexadecimal characters. Other `.env` fields are optional. The copy command preserves an existing `.env`. Melixsa uses your personal account; no BotFather token is needed.
 
-### 3. Launch Melixsa
+### 3. Start Melixsa
 
-From Command Prompt:
+#### Desktop app
 
-```bat
-run.cmd
-```
+If `melixsa-ui.exe` and `Apri MelixsaUI.cmd` are already next to `run.cmd`, open **Apri MelixsaUI.cmd**.
 
-From PowerShell:
+Otherwise, get the ready-made Windows build:
+
+1. On the project's GitHub page, open **Actions → Build MelixsaUI (Windows)** and select a successful run for the source version you downloaded.
+2. Download **MelixsaUI-Windows-x64** from **Artifacts** and extract all its files into the project root, next to `Cogs`, `MelixsaUI`, and `selfbot.py`.
+3. Open **Apri MelixsaUI.cmd**, then click **Connect Telegram** on Home. In Italian, the button is **Collega Telegram**.
+
+If there is no available build, you can use the terminal or [build the desktop app locally](#build-the-desktop-app-yourself).
+
+#### Terminal
+
+Double-click **run.cmd**, or run this from the project root:
 
 ```powershell
 .\run.cmd
 ```
 
-On first launch, follow the Telegram prompts for your phone number, login code, and two-step verification password, if enabled. The session is stored in `data/` and reused on subsequent launches.
+On first connection, enter your phone number, Telegram code, and two-step verification password if requested. In the desktop app you enter them in the UI; terminal mode uses terminal prompts. The session is saved in `data/` and reused later.
 
-Send `/help` in **Saved Messages** to open the command menu. Stop the application normally with `Ctrl+C` in the terminal.
+**Run one instance at a time:** close terminal mode before connecting the desktop app, and close the desktop app before starting terminal mode.
 
-**Startup behavior:** anti-login protection is enabled by default. The SoundCloud adapter also starts automatically and sends its connection panel to Saved Messages. SoundCloud can remain disconnected while you use other features.
+## Everyday use
 
-## Configuration
+- **Desktop:** open `Apri MelixsaUI.cmd` and connect Telegram. The launcher requests a maximized window.
+- **Terminal:** open `run.cmd`, then send `/help` in Telegram **Saved Messages**. Stop with `Ctrl+C` in the terminal.
+- **Close desktop:** use the window's close button to stop its local engine.
 
-Melixsa reads `.env` from the project root. Non-empty process environment variables take precedence over values in that file.
+Default command prefix: `/`. Anti-login protection is enabled by default; before signing in on another Telegram device, use `/anti-login off`. Details are in the [account automation reference](docs/REFERENCE.md#account-automation).
 
-| Variable | Required | Default | Purpose |
-| --- | --- | --- | --- |
-| `TELEGRAM_API_ID` | Yes | None | Telegram application API ID |
-| `TELEGRAM_API_HASH` | Yes | None | Telegram application API hash |
-| `WEBNOWPLAYING_PORT` | No | `8976` | Local adapter port; integers from `1024` to `65535` |
-| `GEOSEEER_API_KEY` | For `/geosint` | Unset | GeoSeeer media analysis key |
-| `LRCLIB_CLIENT_CONTACT` | For `/sclyrics on` | Unset | Your project URL or contact email, included in the LRCLIB client identifier |
-| `OSINT_INCLUDE_ADULT` | No | `0` | Set to `1` to include adult-category sites in username scans |
+### Desktop pages
 
-You can also supply Telegram credentials in the terminal. In Command Prompt:
+| Page | What you can do |
+| --- | --- |
+| Home | Connect Telegram and view your account and session |
+| Chats | Read private chats, groups, channels, and archived conversations; send text with Unicode styles; view profile photos and open them larger |
+| Commands | Search commands, copy syntax, and save favorites; `Ctrl+K` opens search |
+| Automations | Configure automatic reactions, AFK replies, anti-login, and error notifications |
+| Surveillance / Stalk | Manage monitoring and read collected logs |
+| Settings | Change shared settings, UI language, and the Melixsa / E-Girl app icon |
+| Activity | Read recent desktop events |
 
-```bat
-set "TELEGRAM_API_ID=123456"
-set "TELEGRAM_API_HASH=replace_with_your_api_hash"
-run.cmd
-```
+The UI supports Italian and English. Chat content stays in its original language. See the [desktop guide (Italian)](MelixsaUI/README.md) for details.
 
-In PowerShell:
+### Useful Telegram commands
+
+| Command | Purpose |
+| --- | --- |
+| `/help` or `/help <command>` | Command menus and detailed help |
+| `/search <text>` | Find a command |
+| `/surveillance` / `/sustop` | Start / stop monitoring the current group |
+| `/stalk @username` / `/unstalk @username` | Start / stop monitoring a user |
+| `/afk <message>` / `/back` | Enable / disable private-chat AFK replies |
+| `/autoreact` | Inspect automatic reactions |
+| `/status` | View current settings and monitors |
+| `/doctor` | Run local diagnostics |
+
+For access permissions, research tools, SoundCloud, backups, and limits, use the [complete command reference](docs/REFERENCE.md) or `/help` in Telegram.
+
+## Updating
+
+1. Close Melixsa.
+2. Update the source files while keeping your local `.env` and `data/` directory.
+3. From the project root, update Python dependencies:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+   ```
+
+4. For the desktop UI, replace the executable and launcher with the build matching the updated source. UI source changes require a new executable; replacing source files alone does not update the bundled interface.
+5. Start Melixsa normally.
+
+## Other ways to run
+
+### Preview the UI in a browser
+
+With **Node.js 24** installed, open **MelixsaUI/Anteprima UI.cmd**. It installs the JavaScript dependencies if missing and opens the preview.
+
+Preview mode lets you inspect the interface and change local appearance preferences. Connecting Telegram, reading real chats, and sending messages require the desktop app. Python setup is not required just to view the preview.
+
+### Build the desktop app yourself
+
+For development, install **Node.js 24, Rust, Microsoft C++ Build Tools with Desktop development with C++ and Windows SDK, and WebView2**. Also complete the Python setup above.
+
+Open **MelixsaUI/Avvia Melixsa.cmd** to build and start the development app. It installs the JavaScript dependencies if missing.
+
+For a release build, run from the `MelixsaUI` folder:
 
 ```powershell
-$env:TELEGRAM_API_ID = "123456"
-$env:TELEGRAM_API_HASH = "replace_with_your_api_hash"
-.\run.cmd
+node scripts/run.mjs install
+node scripts/run.mjs desktop:build
 ```
 
-Replace placeholders before running either example. Valid Telegram credentials supplied through the environment are saved to `.env` for future launches. Missing or invalid credentials do not overwrite saved values. Restart Melixsa after configuration changes.
+The executable is created at `MelixsaUI/src-tauri/target/release/melixsa-ui.exe`. To prepare the same files as the downloadable build, run from `MelixsaUI`:
 
-Set `NO_COLOR` in the process environment to disable console colors. This terminal setting is not loaded from `.env`.
-
-## Command basics
-
-The default prefix is `/`, used throughout this README. Open `/help`, a category such as `/tools`, or `/help <command>` for detailed syntax.
-
-| Menu | Contents |
-| --- | --- |
-| `/admin` | User information and group administration |
-| `/abuse` | Owner-only repeated-message commands |
-| `/animated` | Text animations |
-| `/fun` | GIF interactions, games, and automatic reactions |
-| `/text` | Formatting, transformations, encodings, and hashes |
-| `/misc` | Client information, profile tools, and AFK |
-| `/mass` | Group and user monitoring |
-| `/tools` | Calculator, passwords, notes, and polls |
-| `/osint` | Public-source research |
-| `/soundcloud` | Playback controls and lyrics |
-| `/settings` | Configuration, permissions, diagnostics, and console options |
-
-Aliases include `/h` and `/?` for help, `/profile` for Misc, and `/sc` for SoundCloud.
-
-Long command menus are split automatically into pages of up to 12 entries and 3,000 UTF-16 units of content. A short menu stays on one page. Multi-page menus show the current page and the exact commands for the previous and next pages, using your current prefix:
-
-```text
-/text
-/text 2
-/help text 2
-/osint 2
-/sc 2
-/allcmds 2
-/search text 2
+```powershell
+.\scripts\package-windows.ps1 -Destination ..\dist\MelixsaUI-Windows-x64
 ```
 
-`/osint 2` and `/sc 2` open menu pages; `/osint ip 1.1.1.1` and `/sc pause` still run their respective commands. Page counts are calculated after access filtering and respect `minimal-mode`. Selecting an unavailable help page displays the valid range and a command to return to the first page. `search` and `allcmds` use the same page limits and include navigation commands when multiple pages are available.
-
-### Prefix and response deletion
-
-`/prefix !` changes the prefix globally: commands become `!help`, `!status`, and so on. The prefix accepts one printable symbol and persists across restarts. The owner can always use `/prefix /` to restore `/`.
-
-Recognized commands sent by the owner are deleted immediately, before execution. Authorized users' command messages remain in the chat. Responses are sent as new messages in the same chat and forum topic.
-
-`/deleteafter 40` sets the response lifetime to 40 seconds, the default. Values range from `0` to `3600`; `0` keeps responses. Each response retains the timer active when it was sent. Melixsa must remain running for scheduled deletion to occur.
-
-GeoSeeer result panels, automatic AFK replies, anti-login notifications, optional error notifications, and messages generated by `/spam` are retained. Ordinary messages and unrecognized commands are not deleted. Most execution errors are recorded in the terminal and operational log; use `/doctor` or the relevant status command to inspect problems.
-
-## Access control
-
-The owner can authorize other Telegram users:
-
-```text
-/access add @username
-/access remove @username
-/access list
-/access allow admin
-/access block admin
-/access allow whois
-/access allow soundcloud
-```
-
-`add` and `remove` also accept a numeric ID or a reply. `allow` and `block` accept a command, category, or category alias such as `mass` or `sc`.
-
-By default, authorized users can use commands outside **Settings**, **Abuse**, **SoundCloud**, and **Misc**; help is included. SoundCloud and Misc can be enabled explicitly. Settings and Abuse remain owner-only, except for help.
-
-Shared command permissions apply to all authorized users. Menus show only commands available to the requester. Permissions persist across restarts; moderation still requires the relevant Telegram administrator permissions.
-
-## Monitoring
-
-| Command | Behavior |
-| --- | --- |
-| `/surveillance` | Record new messages from other participants in the current group |
-| `/sustop` | Stop monitoring the current group |
-| `/stalk @username` | Monitor messages and edits in visible groups, profile changes and explicit online/offline updates |
-| `/unstalk @username` | Stop monitoring that user globally |
-| `/monitorlist` | List monitored users and groups with available names, usernames, and IDs |
-| `/stalklist` | List monitored users |
-| `/sulist` | List monitored groups |
-| `/status` | Show settings, current-group monitoring, and globally monitored users |
-| `/whois @username` | Show user information available through Telegram |
-| `/chatinfo` | Show current-group information |
-
-`/surveillance`, `/sustop`, and `/chatinfo` require a group. `/stalk` and `/unstalk` also accept a numeric ID or a reply. Listing commands work in private chats and Saved Messages.
-
-Group and user monitoring are independent. `/stalk` applies across all visible groups; `/unstalk` stops it everywhere. `/surveillance` applies only to the group where it was enabled.
-
-Monitoring begins when enabled and does not download history. It records group messages and edits, excludes your own messages and service messages, and does not record private-chat conversations or download monitored media.
-
-Records are UTF-8 JSON lines in `data/logs/group_<ID>.txt` and `data/logs/stalk_<USER_ID>.txt`. They contain timestamps, chat/message identifiers, available sender information, text or captions, and media types. Edits use the `edited` event. Monitoring configuration is restored after restarting.
-
-Stalk also records `name_changed`, `username_changed`, `photo_changed`, `online`, and `offline` events in the same user log. Profile changes include `old_value` and `new_value`; profile events have no chat or message identifier. The core runtime processes Telegram updates and checks profiles every 30 seconds, including when the desktop Stalk page is closed or Melixsa is started from the CLI. Poll timestamps indicate when the change was observed. The first successful profile read establishes a baseline without inventing historical changes; restarting or re-enabling monitoring establishes a new baseline. Only explicit online/offline data visible to your account is recorded: approximate or hidden last-seen values are never treated as offline. Photo changes track the visible photo identifier; previous image files are not archived.
-
-## Utilities and account tools
-
-Use built-in help for individual arguments and aliases.
-
-| Category | Commands |
-| --- | --- |
-| Fun | `hug`, `kiss`, `pat`, `slap`, `tickle`, `feed`, `bite`, `shoot`, `iq`, `gay`, `love`, `dick`, `boobs`, `8ball`, `slot`, `coinflip`, `dice`, `choose`, `joke`, `dadjoke`, `rps` |
-| Animated | `cathi`, `flop`, `poof`, `boom`, `tableflip`, `unflip`, `warning` |
-| Text | `ascii`, `reverse`, `vape`, `zalgo`, `bold`, `italic`, `spoiler`, `underline`, `strike`, `indent`, `indent_title`, `indent_footer`, `indent_all`, `regional`, `randomcase`, `shrug`, `lmgtfy` |
-| Encoding and hashes | `encode_base64`, `decode_base64`, `encode_leet`, `decode_leet`, `encode_md5`, `encode_sha1`, `encode_sha224`, `encode_sha256`, `encode_sha384`, `encode_sha512`, `encodemorsecode`, `decodemorsecode` |
-| Code and JSON | `codeblock`, `json`, `python`, `js`, `html`, `css`, `java`, `c`, `cpp`, `php`, `lua` |
-| Tools | `calc`, `passgen`, `note`, `editnote`, `delnote`, `shownote`, `sendnote`, `notes`, `poll`, `cpoll`, `search`, `allcmds` |
-| Admin | `whois`, `chatinfo`, `kick`, `ban`, `unban`, `mute`, `unmute`, `slowmode`, `removeslowmode`, `guildname` |
-| Misc | `uptime`, `about`, `ping`, `name`, `bio`, `avatar`, `afk`, `back`, `afkstatus` |
-| Abuse | `spam`, `spamstop` |
-
-```text
-/choose pizza | sushi | pasta
-/ascii Melixsa
-/spoiler A surprise
-/calc (12 + 3) * 4
-/note ideas A new project idea
-/shownote ideas
-/poll Where should we go? | Rome | Milan
-/name First name | Last name
-```
-
-- **Notes:** stored in `data/notes.json`, with up to 100 notes, 64-character names, and 3,000-character bodies. Display commands publish notes in the current chat.
-- **Passwords:** `passgen` uses a cryptographic generator and accepts lengths from 8 to 128. The generated value is sent to the selected chat.
-- **Text:** most transformations accept an argument or replied-to text up to 1,500 characters; ASCII banners accept up to 60. Formatting uses native Telegram entities. Hashes are digests, and leet decoding is approximate.
-- **Polls:** separate a question and 2–10 options with `|`. `poll` is anonymous; `cpoll` creates a non-anonymous group poll.
-- **Moderation:** `kick` removes a member and lifts the ban so they can rejoin. `unmute` restores current group defaults. Slow mode accepts `0`, `10`, `30`, `60`, `300`, `900`, or `3600` seconds.
-- **Latency:** `ping` measures MTProto round-trip time with a five-second timeout, excluding response delivery.
-- **Entertainment:** GIF interactions use nekos.best with a text fallback. Random scores and ASCII results are fictional. Animations update one message at two-second intervals, with one animation per chat.
-- **Repeated messages:** owner-only `spam` accepts text, a count of 1–100, and an interval of 0–3600 seconds. One sequence runs per chat; `spamstop` stops it. Rate limits or rejected sends stop delivery. Generated messages remain in the chat.
-
-### Utilities from the Ghost comparison
-
-The local `ghost-main/` source was reviewed for portable features. Melixsa adds 23 commands through a new Telegram implementation, integrated with its existing help, aliases, response timer, and access controls:
-
-| Ghost feature | Melixsa behavior |
-| --- | --- |
-| `search`, `allcmds` | Search command names, descriptions, categories, and aliases; browse alphabetical pages. Shared users see only their permitted commands. `minimal-mode` hides descriptions. |
-| `commandhistory` / `cmdhistory` | Owner-only history of the last 50 completed commands; defaults to 10 displayed. Includes name, local time, outcome, and duration. Arguments and chat identifiers are never stored. History remains in memory and resets on restart; `commandhistory clear` clears it. |
-| Account backups | Owner-only local snapshots of Melixsa preferences and notes, with validation and a safety snapshot before restoring a section. See below. |
-| Morse encoding and decoding | `encodemorsecode` / `morse` and `decodemorsecode` / `unmorse`; letters are separated by spaces and words by `/`. Unsupported input produces an error instead of silently losing characters. |
-| Code blocks | `codeblock <language> <code>` or reply with `codeblock python`; language shortcuts include `python`, `js`, `html`, `css`, `java`, `c`, `cpp`, `php`, and `lua`. Native Telegram entities preserve literal markup and emoji. Code is never executed. |
-| JSON formatting | `json` validates JSON and formats it with two-space indentation. `NaN` and `Infinity` are rejected. |
-| Text and entertainment | `regional`, `randomcase`, `shrug`, `lmgtfy`, and `rps sasso|carta|forbici`. `lmgtfy` creates a Google search link without making a web request. |
-
-Text and code commands accept arguments or replied-to text, with up to 1,500 input characters and 4,000 UTF-16 units in the result. Existing commands also gain familiar aliases such as `passwordgen`, `genpassword`, `aesthetic`, `latency`, `av`, `ui`, `serverinfo`, `clearconsole`, `cf`, and `roll`. Existing command meanings are retained, including console `clear` and console `timestamp`.
-
-```text
-/search morse
-/allcmds 2
-/morse SOS 123
-/json {"hello":"world","items":[1,2]}
-/codeblock python print("hello")
-/rps forbici
-/commandhistory 20
-```
-
-AFK, uptime, avatar lookup, password generation, notes, and basic moderation were already available. Discord-specific Nitro, rich presence, HypeSquad, themes, webhooks, and Discord GUI components are not Telegram features. Destructive mass actions and automatic link snipers were not added.
-
-### Local preference and note backups
-
-These owner-only commands are in `settings`:
-
-```text
-/backup create prima
-/backups
-/backup view prima
-/backup restore prima settings
-/backup restore prima notes
-/backup delete prima
-```
-
-`backup create [name]` stores a JSON snapshot under `data/backups/`; omitting the name generates one. Names allow 1–64 ASCII letters, digits, underscores, or hyphens, and cannot overwrite existing snapshots. `backup view` shows only a summary; backup files and note bodies are not uploaded to Telegram. Up to 30 snapshots are retained; `backup delete` explicitly removes the selected copy.
-
-Restore selects one section: `settings` restores the prefix, response timer, autoreaction options, minimal mode, console preferences, log limits, and error-notification setting; `notes` replaces the local note collection. Before either operation, a new snapshot preserves the current preferences and notes, and its name is returned. Restore stops if that safety snapshot cannot be written or the 30-copy limit has been reached. Invalid backup files are rejected before applying changes; writes are atomic, and failed preference saves roll back in-memory changes.
-
-Snapshots exclude `.env`, Telegram sessions, logs, caches, monitoring lists, authorized users, shared command grants, and anti-login state. Restoring preferences therefore preserves those current settings. Notes remain personal local data in the snapshot; the entire `data/` directory stays excluded from Git. Existing automatic `state.json.bak` recovery remains separate.
-
-## Public-source research
-
-Use direct commands or `/osint <subcommand> <value>`. Research starts only when an authorized command is issued.
-
-| Command | Purpose |
-| --- | --- |
-| `/username <name>` | Scan public sites using WhatsMyName indicators and attach a complete TXT report |
-| `/email <address>` | MX, public Gravatar data, registrations detected by holehe, and known breach information |
-| `/breach <email>` | Known breach names through XposedOrNot, without passwords |
-| `/phone <+number>` | Number validity, region, original carrier, type, time zones, and formats |
-| `/phone IT <number>` | Parse a national number using an explicit ISO region |
-| `/namesearch <full name>` | Generate username candidates and public search queries |
-| `/domain <domain>` | WHOIS, DNS, SPF/DMARC, certificate-derived subdomains, and links |
-| `/dns <domain> [type]` | Query `A`, `AAAA`, `MX`, `TXT`, `NS`, or `CNAME`; defaults to `A` |
-| `/rdap <domain>` | Public domain registration data |
-| `/ssl <domain>` | Public TLS certificate on port 443 |
-| `/subdomains <domain>` | Names published in certificate transparency records |
-| `/harvester <domain>` | Public DNS and subdomain summary |
-| `/ip <address>` | Approximate public-IP location, network information, and indexed Shodan InternetDB data |
-| `/myip` | Return the fixed loopback value `127.0.0.1` |
-| `/telegram <@username or t.me/...>` | Public Telegram web-profile information |
-| `/dorks <text>` | Search queries and links |
-| `/imageosint` | Replied-to image research and manual reverse-image-search links |
-| `/exif` | Available image metadata and GPS information |
-| `/forwardinfo` | Sender information Telegram exposes for a forwarded message |
-| `/autoosint [value]` | Detect input type and select a lookup; also accepts a reply |
-| `/osintall <value>` | Primary lookup and related follow-up lookups |
-
-`/osint name Jane Doe` invokes name research; direct `/name` edits your profile. `/whois` inspects a Telegram user, while `/rdap` inspects a domain registration.
-
-### Jobs and limits
-
-Extended lookups return a job ID and run in the background, one at a time. At most **10 jobs** can be active or queued. Each running job has a **10-minute timeout**, including report delivery; queue waiting time is excluded.
-
-```text
-/osintjobs
-/osintcancel 12
-```
-
-The owner can inspect and cancel all jobs. Authorized users can manage only their own jobs in the current chat, if those commands are enabled. Jobs and their history do not survive a restart. Basic direct lookups and GeoSeeer analysis do not use this queue.
-
-Cancellation stops queued or active jobs and associated subprocesses. External requests already received cannot be withdrawn; work in a thread may finish without publishing results. Reports already sent remain subject to the response deletion timer.
-
-WhatsMyName data is cached in `data/osint/wmn-data.json` and refreshed after seven days. Scans allow up to 20 concurrent requests with a 12-second per-site timeout. Adult-category sites are excluded unless `OSINT_INCLUDE_ADULT=1`. Email registration checks omit password-recovery checks.
-
-### Results and media handling
-
-Username matches require verification, IP locations are approximate, and carrier data may reflect the original carrier. Generated links do not confirm account registration. Service failures are distinguished from negative results. IP lookups read indexed data without active port scanning.
-
-Forward information respects what Telegram exposes. EXIF analysis reads up to the first 1 MiB of a Telegram file in memory; original image documents usually preserve more metadata than compressed photos. Standard EXIF and image-research tools do not upload images to analysis services; reverse-image-search links are used manually.
-
-Email, username, domain, and IP lookups contact external providers. Results do not expose private Telegram phone numbers or breach passwords.
-
-### GeoSeeer analysis
-
-Set `GEOSEEER_API_KEY` in `.env`, restart, and reply to supported media with `/geosint`.
-
-Supported input includes photos, videos, animations, image/video documents up to **20 MiB**, or a message with one HTTP/HTTPS media URL. Media is downloaded into memory and sent to GeoSeeer in `fast` mode; URLs are passed to the service for analysis.
-
-Results contain the complete returned JSON, split into messages if needed. Successful result panels are retained regardless of `deleteafter`. Analysis can take several minutes and consume credits; failed requests are not retried automatically. This integration sends selected media or its URL to an external service.
-
-## SoundCloud and lyrics
-
-### Connect WebNowPlaying
-
-The browser and Melixsa must run on the **same computer**.
-
-1. Install the [WebNowPlaying Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/webnowplaying/).
-2. Select **Add custom adapter** in the extension, set port **8976**, and enable it.
-3. Open SoundCloud, start a track, and keep the tab open.
-4. Use `/scconnect` to inspect the connection and `/scnp` to display the track.
-
-The adapter uses WebNowPlaying revision 3 and listens on `127.0.0.1` only. To change ports, set `WEBNOWPLAYING_PORT` in `.env`, configure the same port in the extension, and restart.
-
-| Command | Action |
-| --- | --- |
-| `/scnp` | Track, artist, album, playback state, position, duration, and volume |
-| `/scplay`, `/scpause`, `/sctoggle` | Resume, pause, or toggle playback |
-| `/scnext`, `/scprev` | Move through the SoundCloud queue |
-| `/scvolume [0-100]` | Display or set volume |
-| `/scseek <seconds or mm:ss>` | Seek within the track; `hh:mm:ss` is also accepted |
-| `/screpeat <off\|all\|one>` | Set repeat mode |
-| `/scshuffle [on\|off\|toggle]` | Set or toggle shuffle |
-| `/sclike [on\|off\|toggle]` | Add or remove a like using the browser's account |
-| `/scplayers` | List tabs; `*` marks the selected player |
-| `/scselect <ID\|auto>` | Select a player or automatic selection |
-| `/scconnect` | Connection details and adapter startup |
-
-The `/soundcloud` and `/sc` menus accept subcommands such as `/soundcloud np` and `/soundcloud volume 50`.
-
-Automatic selection prefers a playing SoundCloud tab with nonzero volume, then the most recently active tab. Manual selection lasts until the tab closes or Melixsa restarts. Choose tracks and manage the queue in SoundCloud itself. Actions depend on the player and extension; timed-out commands are not repeated automatically.
-
-### Synchronized lyrics
-
-Set `LRCLIB_CLIENT_CONTACT` to your actual project URL or contact email, restart, and use:
-
-```text
-/sclyrics on
-/sclyrics status
-/sclyrics off
-```
-
-`on` selects the current chat and topic as the destination, waiting for a player if needed. Only one destination is active; enabling lyrics elsewhere moves delivery there. `off` stops delivery from any chat. Lyrics start disabled after every restart.
-
-The LRCLIB integration sends track metadata and your configured client contact to retrieve timestamped lyrics. Lines are sent separately, follow `deleteafter`, and track pauses and playback position. Passed lines are skipped, messages are spaced at least three seconds apart, and tracks without synchronized lyrics are skipped.
-
-Temporary service failures use bounded retries with backoff and respect longer `Retry-After` values. Telegram FloodWait or delivery failures stop lyrics; inspect `/sclyrics status` for details.
-
-## Account automation
-
-### Anti-login protection
-
-Anti-login is **enabled by default** and uses the existing Kurigram session:
-
-```text
-/anti-login status
-/anti-login off
-/anti-login on
-```
-
-`antilogin` is an alias; `enable`/`disable` are accepted. The enabled state persists across restarts.
-
-Melixsa treats sessions present at startup as trusted and preserves its own session. While enabled, it checks every 30 seconds and attempts to terminate sessions outside that baseline. It also attempts to invalidate login codes explicitly identified in Telegram service messages from account `777000`, recognizing supported Italian, English, Spanish, and Russian phrases.
-
-To add your own device, turn protection off before signing in, then restart Melixsa to include that device in the trusted baseline before re-enabling protection. If the initial session list cannot be read, termination stays suspended; inspect the status and use `/anti-login on` to retry initialization.
-
-Session controls remain subject to Telegram restrictions, including the fresh-session restriction handled by Melixsa. Protection can interrupt legitimate logins and cannot guarantee every new login is prevented. Successful actions generate retained Saved Messages notifications; errors are logged locally. Login codes and their message bodies are not copied into those notifications or logs.
-
-### AFK replies
-
-```text
-/afk Away right now; I will reply when I return.
-/afkstatus
-/back
-```
-
-`/afk` enables private-chat replies with an optional message and GIF. `/back`, also available as `/unafk`, disables AFK and reports elapsed time. Normal outgoing messages do not disable it.
-
-AFK applies to new private messages from people, excluding bots, Saved Messages, service messages, and groups. Each person receives at most one reply every **six hours**. Repeating `/afk` updates the message, restarts the timer, and resets recipients. AFK starts **off after every restart**.
-
-Custom messages accept up to 3,000 UTF-16 units. Long replies may use separate GIF and text messages; rejected GIFs fall back to text. Automatic replies remain in the chat. FloodWait suspends delivery; skipped messages are not replayed.
-
-### Automatic reactions
-
-```text
-/autoreact emoji 👍 ❤️ 🔥
-/autoreact count 1
-/autoreact on
-/autoreact
-/autoreact off
-```
-
-Choose one to three distinct emojis and how many of the first emojis to use. The count cannot exceed the list. Settings persist across restarts; reactions are initially disabled.
-
-Reactions apply to your new outgoing messages in private chats and groups, including media. Commands, edits, service messages, history, and messages generated by `/spam` are excluded. Disabling the feature leaves existing reactions intact.
-
-Telegram determines available reactions and counts for your account and each chat. Rejections appear in the terminal and feature status; restrictions pause or skip delivery without replaying missed messages.
-
-## Diagnostics and recovery
-
-### Health and console commands
-
-| Command | Purpose |
-| --- | --- |
-| `/doctor` | Inspect local connections, configuration format, backups, logs, jobs, integrations, and recent errors |
-| `/errornotify [on\|off]` | Generic Saved Messages error notifications; defaults to off |
-| `/console` | Redisplay the banner and settings |
-| `/clear` | Clear the local terminal display |
-| `/debug-mode [on\|off]` | Toggle technical Telegram and WebNowPlaying details; defaults to off |
-| `/minimal-mode [on\|off]` | Show command syntax without descriptions; defaults to off |
-| `/timestamp <on\|off>` | Console timestamps |
-| `/spacers <on\|off>` | Console separators |
-| `/pgradient <on\|off>` | Console log colors |
-| `/lgradient <on\|off>` | Banner colors |
-
-`doctor` does not call external services or reveal credential values. Error notifications are generic, retained, and limited to one per minute. Console settings persist across restarts.
-
-The operational log, `data/logs/melixsa.log`, rotates at **2 MB** with **three backups**. It records command names, chat labels, timings, and events. Normal response bodies, command arguments, generated passwords, and received private-message content are not copied into this log. Monitoring logs separately contain group-message data.
-
-### Monitoring-log retention
-
-```text
-/logconfig
-/logconfig size 10000000
-/logconfig backups 5
-/logconfig days 7
-```
-
-| Option | Default | Accepted range |
-| --- | --- | --- |
-| `size` | `10000000` bytes per active file | `65536`–`1000000000` |
-| `backups` | `5` closed archives per monitor | `1`–`100` |
-| `days` | `0`, time-based expiry disabled | `0`–`3650` |
-
-Limits apply to group and user logs, including stopped monitors. Time-based retention also rotates files at the UTC day boundary. Reducing limits can delete archives. Recovery files named `pending-*.json` are excluded from cleanup. The operational log uses separate rotation settings.
-
-### State and write recovery
-
-Settings are saved atomically to `data/state.json`, with a validated backup at `data/state.json.bak`. If the primary file is missing or invalid, Melixsa attempts the backup. If neither works, it starts with defaults and no authorized users or active monitors. Damaged files are preserved as `state.json.corrupt-<number>` when repaired. Failed setting writes restore previous in-memory values.
-
-Monitoring logs use a background writer with a **5,000-record queue**, plus the active batch. Failed writes retain unfinished records for retry. During normal shutdown, records pending after five seconds are saved as `data/logs/pending-<number>.json` for recovery at next launch. Forced shutdown can lose in-memory records; interruption recovery can produce duplicates.
-
-## Local data and GitHub uploads
-
-Keep these files and directories local:
-
-| Path or pattern | Reason |
-| --- | --- |
-| `.env` and `.env.*`, except `.env.example` | Credentials and local configuration |
-| `data/` | Telegram session, state, notes, monitoring records, logs, and cache |
-| `*.session`, `*.session-*`, `*.session.*` | Telegram authentication files and sidecars |
-| `.venv/`, `venv/`, `env/`, `ENV/` | Machine-specific Python environments |
-| `__pycache__/`, `*.pyc`, tool caches | Generated bytecode and tooling data |
-| Logs, temporary files, build output, editor settings | Generated or machine-specific files |
-
-The included [.gitignore](.gitignore) excludes these files. [.env.example](.env.example) is intended for publication and should contain placeholders only. Source code, tests, dependency declarations, documentation, and third-party notices can be shared.
-
-For manual GitHub uploads, exclude local files yourself. `.gitignore` is applied by Git when adding files; it does not remove tracked files or erase earlier commits.
-
-Protect the Telegram session alongside credentials: it authenticates your account. Logs and notes can contain personal information. Use monitoring only where you are authorized to record messages, and control access to the local data directory.
-
-## Project structure
-
-```text
-Melixsa Selfbot/
-├── selfbot.py                 # Entry point and environment fallback
-├── run.cmd                    # Windows launcher
-├── Cogs/
-│   ├── admin.py               # Group information and administration
-│   ├── abuse.py               # Repeated-message commands
-│   ├── animated.py            # Message animations
-│   ├── fun.py                 # Games, GIF interactions, and autoreactions
-│   ├── text.py                # Text, encodings, JSON, and code blocks
-│   ├── misc.py                # Profile, AFK, uptime, and ping
-│   ├── mass.py                # Group/user monitoring and monitor lists
-│   ├── tools.py               # Notes, polls, calculator, passwords, command search
-│   ├── osint.py               # Public-source research, media analysis, and jobs
-│   ├── soundcloud.py          # Playback control and synchronized lyrics
-│   ├── settings.py            # Help, access, preferences, diagnostics, and backups
-│   └── core/                  # Shared runtime and services
-│       ├── runtime.py         # Telegram lifecycle, state, and response helpers
-│       ├── router.py          # Dispatch by catalog category
-│       ├── pagination.py      # Menu pages and previous/next commands
-│       ├── catalog.py         # Categories, syntax, help, and aliases
-│       ├── config_tools.py    # Credentials and configuration
-│       ├── persistence_tools.py # Atomic state writes and recovery
-│       ├── backup_tools.py    # Preference and note snapshots
-│       ├── io_tools.py        # Cancellation-safe local operations
-│       ├── log_tools.py       # Log queues, rotation, and recovery
-│       ├── osint_extras/      # Adapted research backends
-│       └── ...                # Console, jobs, automation, research, and player services
-├── tests/                     # Automated verification
-├── data/                      # Local runtime data; excluded from Git
-├── .env                       # Local credentials; excluded from Git
-├── .env.example               # Shareable configuration template
-├── .gitignore
-├── requirements.txt
-├── README.md
-└── THIRD_PARTY_NOTICES.txt
-```
-
-Each menu section has its command implementation in the matching `Cogs/<section>.py` file. The `mass surveillance` menu uses `mass.py`. `Cogs/__init__.py` registers the section modules, and `core/router.py` selects a section from `core/catalog.py`; aliases and category wrappers use the same dispatch. Add command handlers to the relevant section and help entries to the catalog.
-
-Shared services live in `Cogs/core/`. Imports of internal helpers now use `Cogs.core`, and command imports use their section, for example `Cogs.settings` or `Cogs.osint`. The former `Cogs/commands/` package and combined Luna/Ghost handlers have been removed. Start through `run.cmd` or `selfbot.py`; individual modules are not entry points. Configuration and data paths remain relative to the project location, under the existing `.env` and `data/` paths.
-
-## Development
-
-Run the existing test suite from the project root:
-
-```bat
-.venv\Scripts\python.exe -m unittest discover -s tests -v
-```
-
-The suite covers routing, permissions, configuration, monitoring, persistence, recovery, integrations, and automation with local fixtures and mocks; Telegram login is not required.
-
-After updating the project, install changed dependencies and restart:
-
-```bat
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-run.cmd
-```
+Extract the packaged files into the project root when using them. The desktop app still needs the project's Python backend.
 
 ## Troubleshooting
 
-| Symptom | What to check |
+| Problem | Fix |
 | --- | --- |
-| Missing virtual environment | Create `.venv` and install requirements using the installation commands |
-| Import errors | Install requirements with `.venv\Scripts\python.exe`, then use `run.cmd` |
-| Invalid Telegram credentials | Replace placeholders; verify the numeric ID and 32-character hexadecimal hash |
-| Commands do not respond | Check prefix, permissions, chat context, and terminal output; the owner can restore `/` with `/prefix /` |
-| Responses disappear | Inspect `/deleteafter`; use `0` to retain ordinary responses |
-| No SoundCloud player | Keep the tab open, enable the custom adapter, and match its port to `WEBNOWPLAYING_PORT` |
-| Adapter port unavailable | Choose another port in `.env` and the extension, then restart |
-| Lyrics do not start | Set `LRCLIB_CLIENT_CONTACT`, inspect `/sclyrics status`, and check track availability |
-| GeoSeeer errors | Inspect logs for key, credit, rate-limit, or API-access errors; requests are not retried automatically |
-| New device login interrupted | Disable anti-login before signing in, then restart to refresh trusted sessions |
-| State or log writes fail | Check directory permissions and disk space; inspect `/doctor` and retain pending recovery files |
+| `py` is not recognized | Install Python, then reopen PowerShell; if `python` is available, use `python -m venv .venv` instead |
+| Missing `.venv` or Python modules | Repeat installation step 1 in the project root |
+| Invalid API credentials | Replace the example values in `.env` with your real API ID and hash |
+| Desktop executable missing | Extract the complete Windows build into the project root, or use `run.cmd` |
+| WebView2 missing | Install Microsoft Edge WebView2 Runtime |
+| Session already in use | Close the other Melixsa instance before reconnecting |
+| `link.exe` not found | Local compilation needs the C++ Build Tools workload and Windows SDK; the ready-made build does not |
+| A UI change is missing | Use a desktop build generated from the updated source |
+| Responses disappear | `/deleteafter 0` keeps ordinary command responses |
 
-## Credits
+## Local files
 
-| Project | Contribution |
-| --- | --- |
-| [Kurigram](https://github.com/kurigram-org/kurigram) | Telegram client library |
-| [Luna Selfbot by Nas](https://github.com/ImHisako/Luna-Selfbot-Source-Code-by-Nas) | Console styling, menus, and adapted commands |
-| [Ghost](https://github.com/ghostselfbot/ghost) | Functional reference for command search, local backups, history, and additional text utilities; implemented for Telegram |
-| [rehuux/selfbot](https://github.com/rehuux/selfbot) by **[Syed Rehan](https://rehuux.vercel.app)** | AFK behavior and public-source research references |
-| [AbelXeon/OSINT-BOT](https://github.com/AbelXeon/OSINT-BOT) | Adapted research backends |
-| [WhatsMyName by WebBreacher](https://github.com/WebBreacher/WhatsMyName) | Username-detection dataset |
-| [WebNowPlaying](https://wnp.keifufu.dev/creating-adapters/getting-started) | Browser playback integration |
-| [LRCLIB](https://lrclib.net/docs) | Timestamped lyrics |
-| [nekos.best](https://docs.nekos.best/getting-started/api-endpoints.html) | GIF interactions |
+Keep `.env`, `data/`, `*.session*`, and `.venv/` on your device. They contain credentials, account sessions, local data, or machine-specific dependencies. The project [.gitignore](.gitignore) excludes them from normal Git additions; exclude them yourself for manual uploads.
 
+## Development and documentation
 
+Run backend tests from the project root:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests
+```
+
+Run UI checks from `MelixsaUI`:
+
+```powershell
+node scripts/run.mjs test
+node scripts/run.mjs build
+```
+
+- [Guida italiana](README.it.md)
+- [Android / Termux installation and usage (Italian)](docs/TERMUX.md)
+- [Complete command and configuration reference](docs/REFERENCE.md)
+- [Desktop guide (Italian)](MelixsaUI/README.md)
+- [Windows build workflow](.github/workflows/build-melixsa-ui.yml)
+- [Credits and upstream projects](docs/REFERENCE.md#credits)

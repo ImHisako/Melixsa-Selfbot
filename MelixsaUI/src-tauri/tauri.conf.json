@@ -13,10 +13,11 @@
     "windows": [{
       "label": "main",
       "title": "Melixsa",
-      "width": 1380,
-      "height": 900,
+      "width": 1180,
+      "height": 720,
       "minWidth": 840,
-      "minHeight": 650,
+      "minHeight": 480,
+      "maximized": true,
       "center": true,
       "backgroundColor": "#101014"
     }],

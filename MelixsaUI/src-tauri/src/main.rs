@@ -176,10 +176,32 @@ async fn bridge_request(
     }
 }
 
+#[tauri::command]
+fn set_app_icon(app: tauri::AppHandle, icon: String) -> Result<(), String> {
+    let window = app
+        .get_webview_window("main")
+        .ok_or("Finestra Melixsa non disponibile.")?;
+    let image = match icon.as_str() {
+        "default" => app
+            .default_window_icon()
+            .ok_or("Icona Melixsa non disponibile.")?
+            .clone(),
+        "egirl" => {
+            // Embed the supplied image as RGBA: no runtime files or image decoder needed.
+            const PIXELS: &[u8; 256 * 256 * 4] = include_bytes!("../icons/e-girl.rgba");
+            tauri::image::Image::new(PIXELS, 256, 256)
+        }
+        _ => return Err("Icona non disponibile.".into()),
+    };
+    window
+        .set_icon(image)
+        .map_err(|_| "Impossibile aggiornare l’icona. Riprova.".into())
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(Backend::default())
-        .invoke_handler(tauri::generate_handler![bridge_request])
+        .invoke_handler(tauri::generate_handler![bridge_request, set_app_icon])
         .build(tauri::generate_context!())
         .expect("Impossibile aprire Melixsa")
         .run(|app, event| {

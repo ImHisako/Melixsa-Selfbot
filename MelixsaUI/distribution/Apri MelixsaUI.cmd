@@ -22,4 +22,4 @@ if not exist "melixsa-ui.exe" (
   exit /b 1
 )
 set "MELIXSA_ROOT=%CD%"
-start "" "%~dp0melixsa-ui.exe"
+start "" /max "%~dp0melixsa-ui.exe"

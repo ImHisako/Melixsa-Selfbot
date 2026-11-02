@@ -1,0 +1,39 @@
+/* Keep the shell inside the client area, including on short/high-DPI displays. */
+html, body, #root { width: 100%; height: 100%; min-height: 0; }
+body { overflow: hidden; }
+.app-shell { min-height: 0; grid-template-rows: minmax(0, 1fr); }
+.sidebar, .main-shell { min-height: 0; height: 100%; }
+.main-shell { overflow-x: hidden; overflow-y: auto; }
+.main-content { flex: 1 0 auto; }
+.topbar, .preview-banner, .app-footer { flex-shrink: 0; }
+
+/* Scroll navigation independently so help and account controls stay reachable. */
+.sidebar { overflow: hidden; }
+.sidebar-brand, .workspace, .sidebar-bottom { flex-shrink: 0; }
+.sidebar > nav { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.sidebar-bottom { margin-top: 0; padding-top: 20px; }
+
+.modal { max-height: calc(100dvh - 50px); overflow-y: auto; }
+
+@media (max-height: 800px) {
+  .sidebar { padding-top: 18px; }
+  .workspace { margin-top: 18px; margin-bottom: 18px; }
+  .sidebar-bottom { padding-top: 12px; }
+  .sidebar-bottom .local-card { display: none; }
+  .sidebar-help { margin-bottom: 8px; }
+  .account-button { padding-top: 14px; padding-bottom: 14px; }
+  .sidebar > nav { margin-top: 16px; }
+  .sidebar .workspace + nav { margin-top: 0; }
+  .main-content { padding-top: 24px; }
+  .app-footer { padding-top: 18px; padding-bottom: 18px; }
+}
+
+@media (max-height: 600px) {
+  .sidebar .workspace { display: none; }
+  .sidebar > nav { margin-top: 16px; }
+  .sidebar .workspace + nav { margin-top: 16px; }
+  .sidebar-help { margin-bottom: 0; }
+  .account-button { padding-top: 10px; padding-bottom: 10px; }
+  .modal-backdrop { padding: 15px; }
+  .modal { max-height: calc(100dvh - 30px); }
+}

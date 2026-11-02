@@ -516,5 +516,14 @@
   "Foto profilo non disponibile.": "Profile photo unavailable.",
   "Foto profilo non disponibile. Riprova tra poco.": "Profile photo unavailable. Try again shortly.",
   "Caricamento della foto scaduto. Riprova.": "Loading the photo timed out. Please try again.",
-  "Elenco delle foto profilo non valido.": "Invalid profile photo list."
+  "Elenco delle foto profilo non valido.": "Invalid profile photo list.",
+  "Icona dell’app": "App icon",
+  "Icona E-Girl": "E-Girl icon",
+  "L’icona originale con luna e stelle.": "The original moon and stars icon.",
+  "La tua immagine E-Girl per Melixsa.": "Your E-Girl image for Melixsa.",
+  "Scegli l’icona di Melixsa. La modifica si applica subito e resta salvata sul dispositivo.": "Choose your Melixsa icon. Changes apply immediately and are saved on this device.",
+  "Aggiornamento dell’icona…": "Updating icon…",
+  "Il salvataggio locale non è disponibile. La scelta vale per questa apertura.": "Local storage is unavailable. Your choice applies to this session.",
+  "Disponibile anche senza collegare Telegram.": "Available without connecting Telegram.",
+  "Impossibile aggiornare l’icona. Riprova.": "Unable to update the icon. Please try again."
 }

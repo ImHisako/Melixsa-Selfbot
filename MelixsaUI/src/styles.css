@@ -32,3 +32,22 @@
 .language-select option{background:var(--panel);color:#ded5ec}
 @media(max-width:520px){.topbar .connection-label{display:none}.topbar-right{gap:6px}.topbar .language-select{padding:4px 6px;gap:4px}.topbar .language-select select{max-width:84px}.setting-row:has(.language-select){flex-wrap:wrap;gap:16px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+.brand-mark.brand-mark-image{transform:none;width:36px;height:36px;border:1px solid #e5acd63d;border-radius:11px;overflow:hidden;background:#352132;flex-shrink:0}
+.brand-mark-image img{display:block;width:100%;height:100%;object-fit:cover}
+.app-icon-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.app-icon-option{position:relative;display:flex;align-items:center;gap:14px;cursor:pointer;padding:17px;border:1px solid #ffffff12;border-radius:10px;background:#ffffff02;min-width:0;transition:border-color .18s,background .18s}
+.app-icon-option:hover{border-color:#c1a3f449;background:#c1a3f407}
+.app-icon-option.is-selected{border-color:#c1a3f47a;background:linear-gradient(125deg,#c1a3f415,#c1a3f405)}
+.app-icon-option:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.app-icon-option:has(input:disabled){cursor:wait;opacity:.6}
+.app-icon-option input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.app-icon-preview{width:58px;height:58px;flex-shrink:0;display:grid;place-items:center;border:1px solid #c1a3f42a;border-radius:15px;overflow:hidden;background:#261f31}
+.app-icon-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.app-icon-copy{display:flex;flex-direction:column;gap:7px;min-width:0;padding-right:9px}
+.app-icon-copy strong{font:600 13px var(--font-heading);color:#e1d5ed}
+.app-icon-copy>span{font-size:10px;line-height:1.7;color:var(--muted)}
+.app-icon-check{position:absolute;top:10px;right:10px;color:var(--accent)}
+.app-icon-status{display:flex;align-items:center;gap:7px;font-size:9px;color:#9986aa;line-height:1.8;margin-top:15px}
+.app-icon-error{display:flex;align-items:center;gap:12px;justify-content:space-between;color:#ddb0b3;font-size:10px;line-height:1.7;margin-top:12px;padding:9px 12px;border:1px solid #e6959522;border-radius:7px;background:#e6959508}
+@media(max-width:1180px){.app-icon-options{gap:10px}.app-icon-option{padding:15px 12px;gap:11px}.app-icon-preview{width:48px;height:48px;border-radius:12px}}
+@media(max-width:760px){.app-icon-options{grid-template-columns:1fr}.app-icon-preview{width:58px;height:58px}.app-icon-option{padding:17px}}

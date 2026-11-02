@@ -3,9 +3,13 @@ import { useState } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { ArrowUpRight, Check, LoaderCircle, Moon, Sparkles } from 'lucide-react';
 import type { Profile } from '../types';
+import { useAppIcon } from '../hooks/useAppIcon';
+import { appIconAssets } from '../lib/appIcon';
 
 export function Brand({ compact = false }: { compact?: boolean }) {
-  return <div className="brand"><div className="brand-mark"><Moon size={23} fill="currentColor" /><Sparkles size={13} className="brand-star" /></div>{!compact && <span>melixsa<span className="brand-period">.</span></span>}</div>;
+  const { icon } = useAppIcon();
+  const { t } = useI18n();
+  return <div className="brand"><div className={`brand-mark ${icon === 'egirl' ? 'brand-mark-image' : ''}`}>{icon === 'egirl' ? <img src={appIconAssets.egirl.src} alt={t('Icona E-Girl')} /> : <><Moon size={23} fill="currentColor" /><Sparkles size={13} className="brand-star" /></>}</div>{!compact && <span>melixsa<span className="brand-period">.</span></span>}</div>;
 }
 
 export function Avatar({ profile, size = 'normal' }: { profile: Pick<Profile, 'name' | 'photo'> | null; size?: 'small' | 'normal' | 'large' }) {
