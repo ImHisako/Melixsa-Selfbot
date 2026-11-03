@@ -2,6 +2,7 @@ import { useI18n } from '../i18n';
 import { useMemo, useState } from 'react';
 import { ArrowDownToLine, ArrowRight, CheckCircle2, CircleAlert, Clock3, FileText, FolderArchive, Hash, Info, ListFilter, LoaderCircle, MessageSquareText, PencilLine, Plus, Radar, RefreshCw, Search, ShieldCheck, Users } from 'lucide-react';
 import { Button, PageIntro, SectionTitle, Toggle } from '../components/ui';
+import { RemoveMonitoringButton } from '../components/RemoveMonitoringButton';
 import { useSurveillance } from '../hooks/useSurveillance';
 import type { Connection, SurveillanceGroup, SurveillanceLogs } from '../types';
 import './surveillance.css';
@@ -51,7 +52,7 @@ export function Surveillance({ connection, disabled }: { connection: Connection;
           <div className="search-field"><Search size={15} /><input aria-label={t("Cerca gruppi Surveillance")} placeholder={t("Cerca nome, username o ID…")} value={groupSearch} onChange={event => setGroupSearch(event.target.value)} /></div>
           <button type="button" className={`filter-button ${onlyActive ? 'active' : ''}`} aria-pressed={onlyActive} onClick={() => setOnlyActive(!onlyActive)}><ListFilter size={13} /> {t("Solo attivati")}</button>
         </div>
-        {state.loading ? <Loading text={t("Caricamento dei gruppi…")} /> : groups.length ? <div className="surveillance-group-list">{groups.map(group => <GroupRow key={group.id} group={group} selected={state.selected === group.id} connected={connected} disabled={blocked} onSelect={() => state.select(group.id)} onToggle={value => void state.setMonitoring(group.id, value)} />)}</div> : <div className="surveillance-group-empty"><Users size={27} /><h3>{groupSearch || onlyActive ? t("Nessun gruppo trovato.") : t("Il primo gruppo parte da qui.")}</h3><p>{groupSearch || onlyActive ? t("Modifica la ricerca o rimuovi il filtro.") : t("Aggiungi un gruppo per iniziare a raccogliere i suoi eventi.")}</p></div>}
+        {state.loading ? <Loading text={t("Caricamento dei gruppi…")} /> : groups.length ? <div className="surveillance-group-list">{groups.map(group => <GroupRow key={group.id} group={group} selected={state.selected === group.id} connected={connected} disabled={blocked} pending={state.pending} error={state.error} onSelect={() => state.select(group.id)} onToggle={value => void state.setMonitoring(group.id, value)} onRemove={() => state.remove(group.id)} />)}</div> : <div className="surveillance-group-empty"><Users size={27} /><h3>{groupSearch || onlyActive ? t("Nessun gruppo trovato.") : t("Il primo gruppo parte da qui.")}</h3><p>{groupSearch || onlyActive ? t("Modifica la ricerca o rimuovi il filtro.") : t("Aggiungi un gruppo per iniziare a raccogliere i suoi eventi.")}</p></div>}
         <div className="surveillance-group-footer"><Info size={13} /> {t("Fermare un gruppo conserva i suoi registri.")}</div>
       </section>
       <LogViewer key={state.selected} group={selected} logs={logs} connected={connected} />
@@ -59,11 +60,12 @@ export function Surveillance({ connection, disabled }: { connection: Connection;
   </>;
 }
 
-function GroupRow({ group, selected, connected, disabled, onSelect, onToggle }: { group: SurveillanceGroup; selected: boolean; connected: boolean; disabled: boolean; onSelect: () => void; onToggle: (value: boolean) => void }) {
+function GroupRow({ group, selected, connected, disabled, pending, error, onSelect, onToggle, onRemove }: { group: SurveillanceGroup; selected: boolean; connected: boolean; disabled: boolean; pending: boolean; error: string; onSelect: () => void; onToggle: (value: boolean) => void; onRemove: () => Promise<boolean> }) {
   const { t, locale } = useI18n();
   return <div className={`surveillance-group-row ${selected ? 'selected' : ''}`}>
     <button type="button" className="surveillance-group-select" onClick={onSelect} aria-pressed={selected}><span className="surveillance-group-icon"><Users size={17} /></span><span><strong>{group.title}</strong><span>{group.username ? `@${group.username}` : group.id}</span><small>{group.log_files ? t("{size} di registri", { size: size(group.log_bytes, locale) }) : t("Nessun evento salvato")}</small></span></button>
     <div className="surveillance-group-control"><Toggle label={t("Monitoraggio {name}", { name: group.title })} checked={group.enabled} disabled={disabled || (!connected && !group.enabled)} onChange={onToggle} /><span>{group.enabled ? connected ? t("Attivo") : t("In pausa") : t("Fermato")}</span></div>
+    <RemoveMonitoringButton name={group.title} kind="surveillance" disabled={disabled} pending={pending} error={error} onRemove={onRemove} />
   </div>;
 }
 

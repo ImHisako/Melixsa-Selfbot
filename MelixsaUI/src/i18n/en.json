@@ -525,5 +525,13 @@
   "Aggiornamento dell’icona…": "Updating icon…",
   "Il salvataggio locale non è disponibile. La scelta vale per questa apertura.": "Local storage is unavailable. Your choice applies to this session.",
   "Disponibile anche senza collegare Telegram.": "Available without connecting Telegram.",
-  "Impossibile aggiornare l’icona. Riprova.": "Unable to update the icon. Please try again."
+  "Impossibile aggiornare l’icona. Riprova.": "Unable to update the icon. Please try again.",
+  "Rimuovi {name} da Stalk": "Remove {name} from Stalk",
+  "Rimuovi {name} da Surveillance": "Remove {name} from Surveillance",
+  "Il monitoraggio verrà fermato e tutti i registri locali di questa voce saranno eliminati, inclusi gli archivi. Questa operazione non può essere annullata.": "Monitoring will stop and all local logs for this entry will be deleted, including archives. This action cannot be undone.",
+  "Rimuovi ed elimina i registri": "Remove and delete logs",
+  "Utente rimosso da Stalk. Registri locali eliminati.": "User removed from Stalk. Local logs deleted.",
+  "Gruppo rimosso da Surveillance. Registri locali eliminati.": "Group removed from Surveillance. Local logs deleted.",
+  "Completa o annulla il collegamento prima di rimuovere il monitoraggio.": "Complete or cancel the connection before removing monitoring.",
+  "Monitoraggio fermato. I registri sono ancora in scrittura: riprova la rimozione.": "Monitoring stopped. Logs are still being written: please try removing the entry again."
 }

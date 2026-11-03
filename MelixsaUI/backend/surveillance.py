@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import nullcontext
 from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
 
-from Cogs.core import runtime
+from Cogs.core import persistence_tools, runtime
 from Cogs.core.instance_tools import InstanceLock
 from Cogs.core.stalk_tools import PROFILE_EVENTS
 
@@ -54,6 +55,54 @@ def log_files(directory: Path, *, pattern=LOG_NAME, parse_id=group_id):
     for files in result.values():
         files.sort(key=lambda item: item[0], reverse=True)
     return result
+
+
+async def remove_target(bridge, target, field, *, pattern=LOG_NAME, parse_id=group_id):
+    """Stop monitoring before draining writes and deleting this target's archives."""
+    if bridge.connection in {"connecting", "login_phone", "login_code", "login_password"}:
+        raise ValueError("Completa o annulla il collegamento prima di rimuovere il monitoraggio.")
+    offline = bridge.connection != "connected"
+    with InstanceLock(runtime.DATA_DIR / "runtime.lock") if offline else nullcontext():
+        if offline:
+            runtime.state = runtime.MonitorState.load()
+        async with runtime.state_transaction():
+            getattr(runtime.state, field).discard(target)
+        if field == "stalk":
+            runtime.stalk_monitor.forget(target)
+        # Already queued events must reach disk before their files are removed.
+        if runtime.writer.task is not None and not runtime.writer.task.done():
+            try:
+                await asyncio.wait_for(runtime.writer.queue.join(), timeout=10)
+            except asyncio.TimeoutError as exc:
+                raise ValueError("Monitoraggio fermato. I registri sono ancora in scrittura: riprova la rimozione.") from exc
+
+        def delete_files():
+            # A recovery spool left by a previous shutdown must not restore deleted logs.
+            basename = f"{'stalk_' if field == 'stalk' else 'group_'}{target}.txt"
+            root = runtime.LOG_DIR.resolve()
+            for spool in runtime.LOG_DIR.glob("pending-*.json"):
+                if (not re.fullmatch(r"pending-[0-9]+\.json", spool.name) or spool.is_symlink()
+                        or spool.resolve().parent != root or not spool.is_file()
+                        or spool in runtime.writer.recovery_sources):
+                    continue
+                try:
+                    raw = json.loads(spool.read_text(encoding="utf-8"))
+                except (FileNotFoundError, ValueError, UnicodeError):
+                    continue
+                if not isinstance(raw, list):
+                    continue
+                remaining = [item for item in raw if not isinstance(item, dict) or item.get("file") != basename]
+                if len(remaining) != len(raw):
+                    if remaining:
+                        persistence_tools.atomic_write(spool, json.dumps(remaining, ensure_ascii=False))
+                    else:
+                        spool.unlink(missing_ok=True)
+            files = log_files(runtime.LOG_DIR, pattern=pattern, parse_id=parse_id)
+            for _, path, _ in files.get(target, []):
+                path.unlink(missing_ok=True)
+
+        async with runtime.writer.disk_lock:
+            await asyncio.to_thread(delete_files)
 
 
 def read_records(files, target_id, *, identity_field="chat_id", limit=MAX_RECORDS, budget=MAX_READ_BYTES):
@@ -170,13 +219,17 @@ class SurveillanceService:
         if not self.connected:
             raise ValueError("Collega Telegram per caricare i tuoi gruppi.")
         groups = []
+        active = await self.active_ids()
 
         async def collect():
             async for dialog in self.bridge.client.get_dialogs(limit=200):
                 chat = dialog.chat
                 if chat.type in {runtime.enums.ChatType.GROUP, runtime.enums.ChatType.SUPERGROUP}:
-                    self.remember(chat)
-                    groups.append({"id": str(chat.id), **self.metadata[chat.id]})
+                    # Discovering available chats must not restore removed entries.
+                    if chat.id in active or chat.id in self.metadata:
+                        self.remember(chat)
+                    groups.append({"id": str(chat.id), "title": text(chat.title) or f"Gruppo {chat.id}",
+                                   "username": text(chat.username, 64)})
 
         await asyncio.wait_for(collect(), timeout=40)
         groups.sort(key=lambda item: item["title"].casefold())
@@ -224,6 +277,14 @@ class SurveillanceService:
         action = "attivato" if enabled else "fermato"
         self.bridge.record(f"Monitoraggio del gruppo {chat_id} {action}.", "Surveillance")
         return {**await self.overview(), "changed_id": str(chat_id)}
+
+    async def remove(self, params):
+        chat_id = group_id(params.get("chat_id"))
+        await remove_target(self.bridge, chat_id, "surveillance")
+        self.metadata.pop(chat_id, None)
+        self.log_labels.pop(chat_id, None)
+        self.bridge.record("Gruppo rimosso da Surveillance. Registri locali eliminati.", "Surveillance")
+        return {**await self.overview(), "removed_id": str(chat_id)}
 
     async def logs(self, params):
         chat_id = group_id(params.get("chat_id"))

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowDownToLine, AtSign, CheckCircle2, CircleAlert, Clock3, FileText, FolderArchive, Hash, Image, Info, ListFilter, LoaderCircle, MessageSquareText, PencilLine, Plus, RefreshCw, Search, UserRoundSearch, Users, Wifi, WifiOff } from 'lucide-react';
 import { Avatar, Button, PageIntro, SectionTitle, Toggle } from '../components/ui';
+import { RemoveMonitoringButton } from '../components/RemoveMonitoringButton';
 import { useStalk } from '../hooks/useStalk';
 import { useI18n } from '../i18n';
 import type { Connection, StalkLogs, StalkRecord, StalkUser } from '../types';
@@ -53,6 +54,7 @@ export function Stalk({ connection, disabled }: { connection: Connection; disabl
         {state.loading ? <Loading text={t('Caricamento degli utenti…')} /> : users.length ? <div className="surveillance-group-list">{users.map(user => <div className={`surveillance-group-row ${state.selected === user.id ? 'selected' : ''}`} key={user.id}>
           <button type="button" className="surveillance-group-select" aria-pressed={state.selected === user.id} onClick={() => state.select(user.id)}><Avatar profile={user} size="small" /><span><strong>{user.name || t('Utente {id}', { id: user.id })}</strong><span>{user.username ? `@${user.username} · ${user.id}` : user.id}</span><small>{user.log_files ? t('{size} di registri', { size: size(user.log_bytes, locale) }) : t('Nessun evento salvato')}</small></span></button>
           <div className="surveillance-group-control"><Toggle label={t('Monitoraggio {name}', { name: user.name || user.id })} checked={user.enabled} disabled={blocked || (!connected && !user.enabled)} onChange={value => void state.setMonitoring(user.id, value)} /><span>{user.enabled ? connected ? t('Attivo') : t('In pausa') : t('Fermato')}</span></div>
+          <RemoveMonitoringButton name={user.name || user.id} kind="stalk" disabled={blocked} pending={state.pending} error={state.error} onRemove={() => state.remove(user.id)} />
         </div>)}</div> : <div className="surveillance-group-empty"><UserRoundSearch size={27} /><h3>{search || onlyActive ? t('Nessun utente trovato.') : t('Il primo utente parte da qui.')}</h3><p>{search || onlyActive ? t('Modifica la ricerca o rimuovi il filtro.') : t('Aggiungi uno username o un ID per iniziare.')}</p></div>}
         <div className="surveillance-group-footer"><Info size={13} />{t('Fermare un utente conserva i suoi registri.')}</div>
       </section>

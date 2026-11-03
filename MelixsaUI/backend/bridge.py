@@ -347,6 +347,8 @@ class DesktopBridge:
             return await self.stalk.overview()
         if method == "stalk_set":
             return await self.stalk.set_enabled(params)
+        if method == "stalk_remove":
+            return await self.stalk.remove(params)
         if method == "stalk_logs":
             return await self.stalk.logs(params)
         if method == "surveillance_overview":
@@ -355,6 +357,8 @@ class DesktopBridge:
             return await self.surveillance.chats()
         if method == "surveillance_set":
             return await self.surveillance.set_enabled(params)
+        if method == "surveillance_remove":
+            return await self.surveillance.remove(params)
         if method == "surveillance_logs":
             return await self.surveillance.logs(params)
         if method == "snapshot":

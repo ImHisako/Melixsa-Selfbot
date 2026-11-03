@@ -172,7 +172,11 @@ gli eventi visualizzati in JSON. Non viene scaricato retroattivamente lo storico
 
 Disattivare un gruppo conserva i registri. I gruppi attivati vengono monitorati solo
 mentre Telegram è connesso; i registri già presenti sono consultabili anche offline.
-Durante la sessione desktop restano visibili anche i gruppi caricati o appena fermati.
+Durante la sessione desktop restano visibili anche i gruppi appena fermati.
+Caricare i gruppi disponibili non li aggiunge automaticamente al monitoraggio.
+Il pulsante cestino rimuove un gruppo dall’elenco e ferma il monitoraggio. Dopo la
+conferma elimina anche tutti i suoi registri locali, compresi gli archivi ruotati;
+la rimozione è disponibile anche offline e non può essere annullata.
 
 ### Cercare i comandi e salvare scorciatoie
 
@@ -232,6 +236,9 @@ foto visibile; le immagini precedenti non vengono archiviate.
 Puoi fermare un utente e leggere i registri anche offline. Fermarlo conserva i file;
 durante la sessione desktop resta nell’elenco anche senza registri. Attivarlo richiede
 Telegram connesso. Stalk e Surveillance restano indipendenti.
+Il pulsante cestino rimuove una persona dall’elenco e ferma Stalk. Dopo la conferma
+elimina anche tutti i suoi registri locali, compresi gli archivi ruotati. Funziona
+anche offline; la rimozione non può essere annullata.
 
 ## Comandi di sviluppo
 

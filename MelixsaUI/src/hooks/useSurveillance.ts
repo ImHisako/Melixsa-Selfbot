@@ -17,24 +17,23 @@ export function useSurveillance(connection: Connection) {
   const [notice, setNotice] = useState('');
   const mounted = useRef(true);
   const working = useRef(false);
+  const revision = useRef(0);
 
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
     async function poll() {
+      const version = revision.current;
       if (desktop && !working.current) {
         try {
           const next = await request<SurveillanceOverview>('surveillance_overview');
-          if (cancelled) return;
-          setOverview(next);
-          if (selected) {
-            const nextLogs = await request<SurveillanceLogs>('surveillance_logs', { chat_id: selected });
-            if (cancelled) return;
-            setLogs(nextLogs);
+          const nextLogs = selected ? await request<SurveillanceLogs>('surveillance_logs', { chat_id: selected }) : null;
+          if (!cancelled && version === revision.current && !working.current) {
+            setOverview(next); setLogs(nextLogs);
           }
         } catch (error) {
-          if (!cancelled) setError(message(error));
+          if (!cancelled && version === revision.current && !working.current) setError(message(error));
         } finally {
           if (!cancelled) setLoading(false);
         }
@@ -43,12 +42,12 @@ export function useSurveillance(connection: Connection) {
     }
     void poll();
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [connection, selected]);
+  }, [connection, selected, pending]);
 
-  const select = useCallback((id: string) => { if (id !== selected) { setLogs(null); setSelected(id); } }, [selected]);
+  const select = useCallback((id: string) => { if (id !== selected) { revision.current++; setLogs(null); setSelected(id); } }, [selected]);
   const perform = useCallback(async (action: () => Promise<void>) => {
     if (working.current) return false;
-    working.current = true; setPending(true); setError(''); setNotice('');
+    working.current = true; revision.current++; setPending(true); setError(''); setNotice('');
     try {
       await action();
       return true;
@@ -57,7 +56,7 @@ export function useSurveillance(connection: Connection) {
       return false;
     } finally {
       working.current = false;
-      if (mounted.current) setPending(false);
+      if (mounted.current) { setPending(false); setLoading(false); }
     }
   }, []);
   const refresh = useCallback(() => perform(async () => {
@@ -77,5 +76,14 @@ export function useSurveillance(connection: Connection) {
       setNotice(enabled ? 'Monitoraggio attivato. I nuovi eventi verranno registrati.' : 'Monitoraggio fermato. I registri raccolti restano disponibili.');
     }
   }), [perform]);
-  return { overview, logs, selected, select, chats, chatsLoaded, loading, pending, error, notice, refresh, loadChats, setMonitoring };
+  const remove = useCallback((id: string) => perform(async () => {
+    const next = await request<SurveillanceOverview & { removed_id: string }>('surveillance_remove', { chat_id: id });
+    if (mounted.current) {
+      setOverview(next);
+      setSelected(previous => previous === next.removed_id ? '' : previous);
+      setLogs(previous => previous?.chat_id === next.removed_id ? null : previous);
+      setNotice('Gruppo rimosso da Surveillance. Registri locali eliminati.');
+    }
+  }), [perform]);
+  return { overview, logs, selected, select, chats, chatsLoaded, loading, pending, error, notice, refresh, loadChats, setMonitoring, remove };
 }

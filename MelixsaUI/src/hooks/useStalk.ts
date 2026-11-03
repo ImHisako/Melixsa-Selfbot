@@ -74,6 +74,15 @@ export function useStalk(connection: Connection) {
       setNotice(enabled ? 'Stalk attivato nei gruppi visibili al tuo account.' : 'Stalk fermato. I registri raccolti restano disponibili.');
     }
   }), [perform]);
+  const remove = useCallback((id: string) => perform(async () => {
+    const next = await request<StalkOverview & { removed_id: string }>('stalk_remove', { user_id: id });
+    if (mounted.current) {
+      setOverview(next);
+      setSelected(previous => previous === next.removed_id ? '' : previous);
+      setLogs(previous => previous?.user_id === next.removed_id ? null : previous);
+      setNotice('Utente rimosso da Stalk. Registri locali eliminati.');
+    }
+  }), [perform]);
 
-  return { overview, selected, select, logs, loading, pending, error, notice, refresh, setMonitoring };
+  return { overview, selected, select, logs, loading, pending, error, notice, refresh, setMonitoring, remove };
 }

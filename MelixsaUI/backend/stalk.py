@@ -11,7 +11,7 @@ import time
 from Cogs.core import runtime
 from Cogs.core.instance_tools import InstanceLock
 from Cogs.core.stalk_tools import photo_id
-from MelixsaUI.backend.surveillance import MAX_RECORDS, log_files, read_records, text
+from MelixsaUI.backend.surveillance import MAX_RECORDS, log_files, read_records, remove_target, text
 
 
 LOG_NAME = re.compile(r"stalk_([1-9][0-9]*)\.txt(?:\.([0-9]+))?\Z")
@@ -199,6 +199,18 @@ class StalkService:
         action = "attivato" if enabled else "fermato"
         self.bridge.record(f"Monitoraggio Stalk dell’utente {target_id} {action}.", "Stalk")
         return {**await self.overview(), "changed_id": str(target_id)}
+
+    async def remove(self, params):
+        target = user_id(params.get("user_id"))
+        await remove_target(self.bridge, target, "stalk", pattern=LOG_NAME, parse_id=user_id)
+        task = self.profile_tasks.get(target)
+        if task is not None:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        for cache in (self.metadata, self.log_labels, self.profiles, self.profile_refresh_at, self.profile_requested_photo):
+            cache.pop(target, None)
+        self.bridge.record("Utente rimosso da Stalk. Registri locali eliminati.", "Stalk")
+        return {**await self.overview(), "removed_id": str(target)}
 
     async def logs(self, params):
         target = user_id(params.get("user_id"))

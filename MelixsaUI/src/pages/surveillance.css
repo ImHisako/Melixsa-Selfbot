@@ -49,6 +49,14 @@
 .surveillance-group-select small{display:block;font-size:7px;color:#7f6b8f;margin-top:7px}
 .surveillance-group-control{display:flex;flex-direction:column;align-items:center;gap:7px}
 .surveillance-group-control>span{font-size:7px;color:#9d84b1}
+.surveillance-group-control{flex-shrink:0}
+.surveillance-group-row>.surveillance-remove{width:28px;height:32px;flex-shrink:0;color:#ab8294}
+.surveillance-group-row>.surveillance-remove:hover{color:#edb2c0;background:#d58d9c12}
+.surveillance-remove-dialog{position:fixed;inset:0;margin:auto;color:var(--text)}
+.surveillance-remove-dialog::backdrop{background:#08050dc9;backdrop-filter:blur(9px)}
+.surveillance-remove-dialog h2{overflow-wrap:anywhere}
+.surveillance-remove-dialog .modal-actions{flex-wrap:wrap}
+.surveillance-remove-dialog .surveillance-remove-confirm{color:#edb2c0;border-color:#d58d9c45;background:#d58d9c12}
 .surveillance-group-footer{display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);padding:14px 18px;font-size:8px;color:#887099;line-height:1.7}
 .surveillance-group-footer>svg{flex-shrink:0}
 .surveillance-group-empty{text-align:center;padding:42px 18px;color:#9b7eb2}
