@@ -1,5 +1,5 @@
 export type Connection = 'offline' | 'connecting' | 'connected' | 'error' | 'login_phone' | 'login_code' | 'login_password';
-export type Page = 'home' | 'chats' | 'commands' | 'modules' | 'surveillance' | 'stalk' | 'settings' | 'activity';
+export type Page = 'home' | 'chats' | 'commands' | 'profiles' | 'modules' | 'surveillance' | 'stalk' | 'settings' | 'activity';
 export interface Settings {
   prefix: string;
   delete_after: number;

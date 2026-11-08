@@ -23,10 +23,13 @@ if str(ROOT) not in sys.path:
 
 from Cogs.core import autoreact_tools, config_tools, console_tools, persistence_tools, runtime
 from Cogs.core.instance_tools import InstanceLock
+from Cogs.core.io_tools import local_io
+from Cogs.core.saved_profiles import SavedProfiles, profile_name
 from MelixsaUI.backend.surveillance import SurveillanceService
 from MelixsaUI.backend.stalk import StalkService
 from MelixsaUI.backend.commands import command_catalog
 from MelixsaUI.backend.chats import ChatService
+from MelixsaUI.backend.photos import image_data
 
 
 class ActivityHandler(logging.Handler):
@@ -333,6 +336,8 @@ class DesktopBridge:
             raise ValueError("Parametri non validi.")
         if method == "command_catalog":
             return command_catalog()
+        if method in {"saved_profiles", "saved_profile_preview", "save_profile", "load_profile"}:
+            return await self.saved_profile_request(method, params.get("name"))
         if method == "chat_dialogs":
             return await self.chats.list_dialogs(params)
         if method == "chat_history":
@@ -374,6 +379,29 @@ class DesktopBridge:
         if method in {"disconnect", "shutdown"}:
             return await self.disconnect()
         raise ValueError("Operazione non disponibile.")
+
+    async def saved_profile_request(self, method, name):
+        profiles = SavedProfiles(runtime.DATA_DIR)
+        if method in {"save_profile", "load_profile"}:
+            if self.connection != "connected" or self.client is None:
+                raise ValueError("Collega Telegram per salvare o caricare un profilo.")
+            if method == "save_profile":
+                return {"name": await profiles.save(self.client, name)}
+            await profiles.load(self.client, name)
+            return await self.refresh_profile()
+
+        me = getattr(self.client, "me", None)
+        account_id = me.id if me else (self.profile or {}).get("id")
+        if type(account_id) is not int or account_id <= 0:
+            if method == "saved_profiles":
+                return []
+            raise ValueError("Collega Telegram per visualizzare i tuoi profili salvati.")
+        if method == "saved_profiles":
+            return await local_io(profiles.names, account_id)
+        saved = await local_io(profiles.get, account_id, profile_name(name))
+        photo = await local_io(image_data, io.BytesIO(saved["photo"]), 320) if saved["photo"] else None
+        return {"name": saved["name"], "first_name": saved["first_name"], "last_name": saved["last_name"],
+                "bio": saved["bio"], "photo": photo}
 
     async def close(self):
         try:

@@ -11,6 +11,7 @@ from datetime import datetime
 from pyrogram.errors import RPCError
 from .core import backup_tools, config_tools, console_tools, pagination, persistence_tools, profile_tools
 from .core.io_tools import local_io
+from .core.saved_profiles import SavedProfiles
 
 OWNER_CATEGORIES = {"settings", "abuse"}
 
@@ -383,6 +384,25 @@ async def handle_backup_command(message, command: str, argument: str) -> None:
             raise ValueError(f"Uso: {runtime.state.prefix}backup")
     await runtime.respond(message, result, title="MELIXSA / BACKUP")
 
+async def handle_saved_profile_command(client: Client, message: Message, command: str, argument: str) -> None:
+    from .core import runtime
+
+    if runtime.shared_command_context.get():
+        raise ValueError("Comando riservato al proprietario.")
+    if not argument:
+        raise ValueError(f"Uso: {runtime.state.prefix}{command} <nome>")
+    profiles = SavedProfiles(runtime.DATA_DIR)
+    if command == "saveprofile":
+        name = await profiles.save(client, argument)
+        result = f"Profilo salvato » {name}"
+    else:
+        saved = await profiles.load(client, argument)
+        result = f"Profilo caricato » {saved['name']}"
+        if saved["photo"] is None:
+            result += "\nQuesta copia applica solo nome e bio."
+    await runtime.respond(message, result, title=f"MELIXSA / {command.upper()}")
+
+
 async def handle_profile_command(client: Client, message: Message, command: str, argument: str) -> None:
     from .core import runtime
 
@@ -437,6 +457,8 @@ async def handle_command(client: Client, message: Message, command: str, argumen
         return
     elif command in {"cloneprofile", "restoreprofile"}:
         await handle_profile_command(client, message, command, argument)
+    elif command in {"saveprofile", "loadprofile"}:
+        await handle_saved_profile_command(client, message, command, argument)
     elif command == 'minimal-mode':
         action = argument.lower()
         if action not in {"", "on", "off"}:

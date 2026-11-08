@@ -184,8 +184,12 @@ for _category, _entries in ghost_tools.CATEGORIES.items():
 HELP_CATEGORIES["settings"] += (
     ("cloneprofile", "[utente o risposta]", "Clona un profilo Telegram con backup locale"),
     ("restoreprofile", "", "Ripristina il profilo Telegram dal backup"),
+    ("saveprofile", "<nome>", "Salva il profilo Telegram con un nome"),
+    ("loadprofile", "<nome>", "Carica un profilo Telegram salvato"),
 )
 HELP_DETAILS.update({
+    "saveprofile": "Salva nome, cognome, bio e foto attuali in una copia locale con nome. I nomi possono contenere spazi e sono univoci per account. Le copie sono disponibili nella pagina Profili di Melixsa Desktop.",
+    "loadprofile": "Applica una copia salvata con saveprofile. Le copie senza foto applicano solo nome e bio. Puoi rivedere foto, nome e bio prima del caricamento nella pagina Profili di Melixsa Desktop.",
     "search": "Cerca per nome, alias, categoria e descrizione. Esempio: search morse. Ultimo numero opzionale: pagina. Mostra solo i comandi autorizzati e rispetta minimal-mode.",
     "allcmds": "Elenco alfabetico con sintassi e descrizioni, diviso in pagine. allcmds 2 apre la seconda. Mostra solo i comandi autorizzati e rispetta minimal-mode.",
     "commandhistory": "Ultimi 10 comandi terminati; 1-50 sceglie quanti mostrarne, clear svuota. Solo nomi, orario, esito e durata, senza argomenti o destinatari. Solo in memoria, si azzera al riavvio. Riservato al proprietario.",

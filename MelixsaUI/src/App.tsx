@@ -14,6 +14,7 @@ import { Surveillance } from './pages/Surveillance';
 import { Stalk } from './pages/Stalk';
 import { Commands } from './pages/Commands';
 import { Chats } from './pages/Chats';
+import { Profiles } from './pages/Profiles';
 import type { Page } from './types';
 
 export default function App() {
@@ -40,6 +41,7 @@ export default function App() {
       {page === 'home' && <Home data={data} disabled={disabled} busy={busy} navigate={setPage} save={save} connect={connect} refresh={() => void act('refresh_profile', {}, 'Profilo aggiornato.')} />}
       {page === 'commands' && <Commands prefix={data.settings.prefix} focusRequest={commandFocus} />}
       {page === 'chats' && <Chats connection={data.connection} disabled={disabled} />}
+      {page === 'profiles' && <Profiles key={data.profile?.id} profile={data.profile} connection={data.connection} disabled={disabled} load={name => act('load_profile', { name }, 'Profilo caricato su Telegram.')} />}
       {page === 'modules' && <Modules data={data} disabled={disabled} busy={busy} save={save} />}
       {page === 'surveillance' && <Surveillance connection={data.connection} disabled={disabled} />}
       {page === 'stalk' && <Stalk connection={data.connection} disabled={disabled} />}

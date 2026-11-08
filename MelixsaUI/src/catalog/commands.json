@@ -1362,6 +1362,20 @@
           "aliases": [
             "restore"
           ]
+        },
+        {
+          "name": "saveprofile",
+          "usage": "<nome>",
+          "description": "Salva il profilo Telegram con un nome",
+          "details": "Salva nome, cognome, bio e foto attuali in una copia locale con nome. I nomi possono contenere spazi e sono univoci per account. Le copie sono disponibili nella pagina Profili di Melixsa Desktop.",
+          "aliases": []
+        },
+        {
+          "name": "loadprofile",
+          "usage": "<nome>",
+          "description": "Carica un profilo Telegram salvato",
+          "details": "Applica una copia salvata con saveprofile. Le copie senza foto applicano solo nome e bio. Puoi rivedere foto, nome e bio prima del caricamento nella pagina Profili di Melixsa Desktop.",
+          "aliases": []
         }
       ]
     }

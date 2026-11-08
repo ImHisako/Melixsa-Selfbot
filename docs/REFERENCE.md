@@ -185,6 +185,12 @@ Use built-in help for individual arguments and aliases.
 
 Before changing your profile, Melixsa saves the previous name, bio and photo data in `data/profile-backups/<account-id>.json`. The file survives restarts and stays available if the clone or restore fails. `/restoreprofile` (alias `/restore`) restores those fields and removes the tracked cloned photo. A successful restore removes the file and allows another clone. Both commands are owner-only and appear in `settings`.
 
+### Named profiles
+
+Use `/saveprofile Work profile` to save your current name, bio and profile photo. `/loadprofile Work profile` applies that copy to your Telegram account. Names accept spaces and are unique per account regardless of letter case. Copies without a photo apply the name and bio only. Both commands are owner-only and appear in `settings`.
+
+Melixsa Desktop's **Profiles** page uses the same local library in `data/saved-profiles.sqlite3`. Select a copy to preview its name, photo and bio before applying it. The named library and the `/restoreprofile` backup are stored separately.
+
 ### Utilities from the Ghost comparison
 
 The local `ghost-main/` source was reviewed for portable features. Melixsa adds 23 commands through a new Telegram implementation, integrated with its existing help, aliases, response timer, and access controls:

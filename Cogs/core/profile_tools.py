@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 from pyrogram import raw, types
+from pyrogram.errors import AboutTooLong
 from pyrogram.file_id import FileId
 
 from .io_tools import local_io
@@ -44,6 +45,19 @@ def photo_stream(image: bytes) -> BytesIO:
     return stream
 
 
+async def stage_photo(client, image: bytes):
+    with photo_stream(image) as stream:
+        uploaded = await client.save_file(stream)
+    if uploaded is None:
+        raise RuntimeError("Impossibile preparare la foto profilo per Telegram.")
+    return uploaded
+
+
+async def upload_photo(client, uploaded) -> int:
+    result = await client.invoke(raw.functions.photos.UploadProfilePhoto(file=uploaded), retries=1)
+    return result.photo.id
+
+
 def save_backup(path: Path, backup: dict) -> None:
     atomic_write(path, json.dumps(backup, ensure_ascii=False, indent=2) + "\n")
 
@@ -74,7 +88,7 @@ def load_backup(path: Path, owner_id: int) -> tuple[dict, bytes | None]:
     return backup, image
 
 
-async def clone(client, owner, target, path: Path, restore_command: str) -> None:
+async def clone(client, owner, target, path: Path, restore_command: str) -> bool:
     if await local_io(path.exists):
         raise ValueError(f"C'è già un backup da ripristinare. Usa {restore_command} prima di clonare un altro profilo.")
     details = profile_details(target)
@@ -91,17 +105,23 @@ async def clone(client, owner, target, path: Path, restore_command: str) -> None
         "cloned_photo_id": None,
     }
     await local_io(save_backup, path, backup)
+    bio_copied = True
     try:
-        with photo_stream(image) as stream:
-            uploaded = await client.save_file(stream)
-        if uploaded is None or not await client.update_profile(**details):
+        uploaded = await stage_photo(client, image)
+        try:
+            updated = await client.update_profile(**details)
+        except AboutTooLong:
+            details.pop("bio")
+            updated = await client.update_profile(**details)
+            bio_copied = False
+        if not updated:
             raise RuntimeError("Telegram non ha confermato l'aggiornamento del profilo.")
         # Il risultato MTProto identifica la foto aggiunta anche se il profilo cambia di nuovo.
-        result = await client.invoke(raw.functions.photos.UploadProfilePhoto(file=uploaded), retries=1)
-        backup["cloned_photo_id"] = result.photo.id
+        backup["cloned_photo_id"] = await upload_photo(client, uploaded)
         await local_io(save_backup, path, backup)
     except Exception as exc:
         raise RuntimeError(f"Clonazione interrotta. Usa {restore_command} per recuperare il profilo. {exc}") from exc
+    return bio_copied
 
 
 async def find_photo(client, media_id: int):
