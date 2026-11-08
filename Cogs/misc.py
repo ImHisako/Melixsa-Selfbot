@@ -5,6 +5,7 @@ from pyrogram import Client
 from pyrogram.types import Message
 from secrets import randbits
 from pyrogram import raw
+from .core.profile_tools import profile_lock
 
 async def handle_afk_command(client: Client, message: Message, command: str, argument: str) -> None:
     from .core import runtime
@@ -43,11 +44,13 @@ async def handle_command(client: Client, message: Message, command: str, argumen
             first, last = parts[0].strip(), parts[1].strip() if len(parts) == 2 else ""
             if not first or len(first) > 64 or len(last) > 64:
                 raise ValueError("Nome obbligatorio, massimo 64 caratteri per nome e cognome.")
-            await client.update_profile(first_name=first, last_name=last)
+            async with profile_lock:
+                await client.update_profile(first_name=first, last_name=last)
         else:
             if len(argument) > 70:
                 raise ValueError("Biografia: massimo 70 caratteri.")
-            await client.update_profile(bio=argument)
+            async with profile_lock:
+                await client.update_profile(bio=argument)
         await runtime.respond(message, "Profilo aggiornato.", title=title)
     elif command == 'avatar':
         if argument or getattr(message, "reply_to_message", None):

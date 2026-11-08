@@ -179,6 +179,12 @@ Use built-in help for individual arguments and aliases.
 - **Entertainment:** GIF interactions use nekos.best with a text fallback. Random scores and ASCII results are fictional. Animations update one message at two-second intervals, with one animation per chat.
 - **Repeated messages:** owner-only `spam` accepts text, a count of 1–100, and an interval of 0–3600 seconds. One sequence runs per chat; `spamstop` stops it. Rate limits or rejected sends stop delivery. Generated messages remain in the chat.
 
+### Profile cloning and restore
+
+`/cloneprofile @username` (alias `/clone`) copies the first name, last name, bio and visible profile picture of another Telegram user to your profile. You can also pass a numeric ID or run the command as a reply. The command requires an accessible photo and uses the still image for animated profile pictures.
+
+Before changing your profile, Melixsa saves the previous name, bio and photo data in `data/profile-backups/<account-id>.json`. The file survives restarts and stays available if the clone or restore fails. `/restoreprofile` (alias `/restore`) restores those fields and removes the tracked cloned photo. A successful restore removes the file and allows another clone. Both commands are owner-only and appear in `settings`.
+
 ### Utilities from the Ghost comparison
 
 The local `ghost-main/` source was reviewed for portable features. Melixsa adds 23 commands through a new Telegram implementation, integrated with its existing help, aliases, response timer, and access controls:

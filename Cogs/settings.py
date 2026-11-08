@@ -9,7 +9,7 @@ import re
 import time
 from datetime import datetime
 from pyrogram.errors import RPCError
-from .core import backup_tools, config_tools, console_tools, pagination, persistence_tools
+from .core import backup_tools, config_tools, console_tools, pagination, persistence_tools, profile_tools
 from .core.io_tools import local_io
 
 OWNER_CATEGORIES = {"settings", "abuse"}
@@ -383,6 +383,32 @@ async def handle_backup_command(message, command: str, argument: str) -> None:
             raise ValueError(f"Uso: {runtime.state.prefix}backup")
     await runtime.respond(message, result, title="MELIXSA / BACKUP")
 
+async def handle_profile_command(client: Client, message: Message, command: str, argument: str) -> None:
+    from .core import runtime
+
+    if runtime.shared_command_context.get():
+        raise ValueError("Comando riservato al proprietario.")
+    restore_command = f"{runtime.state.prefix}restoreprofile"
+    if command == "restoreprofile" and argument:
+        raise ValueError(f"Uso: {restore_command}")
+    async with profile_tools.profile_lock:
+        owner = await client.get_chat("me")
+        if owner is None:
+            raise ValueError("Profilo Telegram del proprietario non disponibile.")
+        path = runtime.DATA_DIR / "profile-backups" / f"{owner.id}.json"
+        if command == "cloneprofile":
+            user = await runtime.resolve_user(client, message, argument)
+            if user is None or user.id == owner.id or getattr(user, "is_deleted", False):
+                raise ValueError("Scegli un altro utente Telegram con un profilo disponibile.")
+            target = await client.get_chat(user.id)
+            await profile_tools.clone(client, owner, target, path, restore_command)
+            result = f"Profilo clonato. Backup salvato in locale. Per ripristinare usa {restore_command}."
+        else:
+            await profile_tools.restore(client, owner, path)
+            result = "Profilo precedente ripristinato."
+    await runtime.respond(message, result, title=f"MELIXSA / {command.upper()}")
+
+
 async def handle_command(client: Client, message: Message, command: str, argument: str) -> None:
     from .core import runtime
 
@@ -409,6 +435,8 @@ async def handle_command(client: Client, message: Message, command: str, argumen
     elif command in {'backup', 'backups'}:
         await handle_backup_command(message, command, argument)
         return
+    elif command in {"cloneprofile", "restoreprofile"}:
+        await handle_profile_command(client, message, command, argument)
     elif command == 'minimal-mode':
         action = argument.lower()
         if action not in {"", "on", "off"}:

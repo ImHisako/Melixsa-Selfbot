@@ -93,6 +93,8 @@ HELP_DETAILS = {
     "prefix": "Un simbolo; /prefix / ripristina il prefisso.",
     "deleteafter": "Timer delle risposte: 0 disattiva; massimo 3600 secondi. I comandi vengono cancellati subito.",
     "help": "Apri una categoria o un comando. I menu lunghi sono divisi in pagine da massimo 12 voci. Esempi: help text 2 oppure text 2. Numero e comandi precedente/successiva in fondo. Alias: h, ?.",
+    "cloneprofile": "Copia nome, cognome, biografia e foto accessibile da @username, ID o risposta. Salva prima il profilo attuale in locale. Ripristina il backup prima di clonare di nuovo. Alias: clone.",
+    "restoreprofile": "Ripristina nome, cognome, biografia e foto dal backup locale. Il file viene rimosso a ripristino completato. Alias: restore.",
     "email": "Controlla MX e dominio temporaneo noto.",
     "username": "Controlla le pagine pubbliche; HTTP 200 non prova che il profilo esista.",
     "domain": "Riepilogo DNS pubblico e data di registrazione RDAP.",
@@ -147,6 +149,7 @@ HELP_DETAILS["back"] = "Disattiva AFK e mostra la durata dell'assenza. Alias: un
 HELP_DETAILS["afkstatus"] = "Mostra stato, durata, messaggio e ultimo problema di AFK."
 luna_tools.ALIASES["unafk"] = "back"
 luna_tools.ALIASES["antilogin"] = "anti-login"
+luna_tools.ALIASES.update({"clone": "cloneprofile", "restore": "restoreprofile"})
 HELP_CATEGORY_ALIASES["profile"] = "misc"
 HELP_CATEGORIES = {category: HELP_CATEGORIES[category] for category in (
     "admin", "abuse", "animated", "fun", "text", "misc", "mass surveillance",
@@ -178,6 +181,10 @@ for _category, _entries in ghost_tools.CATEGORIES.items():
     HELP_CATEGORIES[_category] += _entries
     for _name, _usage, _description in _entries:
         HELP_DETAILS[_name] = f"{_description}. Testo o codice: argomento oppure messaggio in risposta; massimo 1500 caratteri."
+HELP_CATEGORIES["settings"] += (
+    ("cloneprofile", "[utente o risposta]", "Clona un profilo Telegram con backup locale"),
+    ("restoreprofile", "", "Ripristina il profilo Telegram dal backup"),
+)
 HELP_DETAILS.update({
     "search": "Cerca per nome, alias, categoria e descrizione. Esempio: search morse. Ultimo numero opzionale: pagina. Mostra solo i comandi autorizzati e rispetta minimal-mode.",
     "allcmds": "Elenco alfabetico con sintassi e descrizioni, diviso in pagine. allcmds 2 apre la seconda. Mostra solo i comandi autorizzati e rispetta minimal-mode.",

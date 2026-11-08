@@ -1344,6 +1344,24 @@
           "description": "Elenca i backup locali",
           "details": "Elenca i backup locali in data/backups/. Usa backup per creazione, riepilogo, ripristino ed eliminazione. Nessun file viene inviato in chat. Riservato al proprietario.",
           "aliases": []
+        },
+        {
+          "name": "cloneprofile",
+          "usage": "[utente o risposta]",
+          "description": "Clona un profilo Telegram con backup locale",
+          "details": "Copia nome, cognome, biografia e foto accessibile da @username, ID o risposta. Salva prima il profilo attuale in locale. Ripristina il backup prima di clonare di nuovo. Alias: clone.",
+          "aliases": [
+            "clone"
+          ]
+        },
+        {
+          "name": "restoreprofile",
+          "usage": "",
+          "description": "Ripristina il profilo Telegram dal backup",
+          "details": "Ripristina nome, cognome, biografia e foto dal backup locale. Il file viene rimosso a ripristino completato. Alias: restore.",
+          "aliases": [
+            "restore"
+          ]
         }
       ]
     }
