@@ -4,9 +4,10 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, call, patch
 
 from pyrogram import enums, raw
+from pyrogram.errors import AboutTooLong
 from pyrogram.file_id import FileId, FileType, ThumbnailSource
 
 from Cogs.core import profile_tools, runtime
@@ -81,6 +82,20 @@ class ProfileCloneTests(unittest.IsolatedAsyncioTestCase):
         self.client.update_profile.assert_awaited_with(first_name="Anna", last_name="Rossi", bio="Bio originale")
         self.client.delete_profile_photos.assert_awaited_once_with(self.cloned_photo.big_file_id)
         self.assertFalse(self.path.exists())
+
+    async def test_clones_name_and_photo_when_telegram_rejects_long_bio(self):
+        self.target.bio = "a" * 140
+        self.client.update_profile.side_effect = [AboutTooLong(), True]
+        await self.run_command("cloneprofile")
+        self.assertEqual(self.client.update_profile.await_args_list, [
+            call(first_name="Luca", last_name="", bio=self.target.bio),
+            call(first_name="Luca", last_name=""),
+        ])
+        self.client.invoke.assert_awaited_once()
+        backup = json.loads(self.path.read_text(encoding="utf-8"))
+        self.assertEqual(backup["cloned_photo_id"], 303)
+        self.assertEqual(backup["details"]["bio"], self.owner.bio)
+        self.assertIn("Bio saltata", runtime.respond.call_args.args[1])
 
     async def test_keeps_backup_after_upload_failure_and_restores_by_reply(self):
         self.client.invoke.side_effect = TimeoutError("Telegram timeout")

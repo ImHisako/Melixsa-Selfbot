@@ -421,8 +421,10 @@ async def handle_profile_command(client: Client, message: Message, command: str,
             if user is None or user.id == owner.id or getattr(user, "is_deleted", False):
                 raise ValueError("Scegli un altro utente Telegram con un profilo disponibile.")
             target = await client.get_chat(user.id)
-            await profile_tools.clone(client, owner, target, path, restore_command)
+            bio_copied = await profile_tools.clone(client, owner, target, path, restore_command)
             result = f"Profilo clonato. Backup salvato in locale. Per ripristinare usa {restore_command}."
+            if not bio_copied:
+                result += "\nBio saltata perché troppo lunga."
         else:
             await profile_tools.restore(client, owner, path)
             result = "Profilo precedente ripristinato."
